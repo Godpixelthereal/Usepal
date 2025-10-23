@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Projects - PAL</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Status bar */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 15px;
+      font-size: 12px;
+      background-color: white;
+    }
+    
+    .app-container {
+      max-width: 390px; /* iPhone portrait width */
+      margin: 0 auto;
+      height: 100vh;
+      background-color: white;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      background-color: white;
+      padding: 0.75rem 1rem;
+      z-index: 10;
+      max-width: 390px; /* iPhone portrait width */
+      margin: 0 auto;
+      border-top: 1px solid #f0f0f0;
+    }
+    
+    .bottom-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      position: relative;
+      text-decoration: none;
+    }
+    
+    .bottom-nav-item.active {
+      color: #0066ff;
+    }
+    
+    .bottom-nav-icon {
+      margin-bottom: 0.25rem;
+      height: 24px;
+    }
+    
+    .bottom-nav-text {
+      font-size: 0.75rem;
+    }
+    
+    .bottom-nav-indicator {
+      position: absolute;
+      bottom: -12px;
+      left: 0;
+      right: 0;
+      margin: 0 auto;
+      width: 24px;
+      height: 2px;
+      background-color: #0066ff;
+    }
+    
+    :root {
+      --folder-corner-tl: 22px;
+      --folder-corner-tr: 28px;
+      --folder-corner-br: 28px;
+      --folder-corner-bl: 28px;
+      --folder-tab-left: 44px;
+      --folder-tab-top: -24px;
+      --folder-tab-width: 170px;
+      --folder-tab-height: 56px;
+      --folder-tab-radius: 72px;
+    }
+    .project-card {
+      position: absolute;
+      width: 100%;
+      border-radius: 24px;
+      padding: 1.25rem; /* base padding */
+      padding-top: 3.25rem; /* keep text clear of top tab */
+      color: white;
+      background: linear-gradient(135deg, var(--gradient-start, #4db1ff) 0%, var(--gradient-end, #2673ff) 100%);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
+      height: 195px;
+      overflow: visible;
+      transition: top 0.25s ease, transform 0.25s ease, opacity 0.25s ease;
+    }
+    /* Curved folder tab notch (smaller) */
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: -16px;
+      left: 24px;
+      width: 140px;
+      height: 40px;
+      background: inherit;
+      border-radius: 20px 20px 26px 64px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+    /* Remove lip for seamless join */
+    .project-card::after { content: none; }
+
+    /* Folder color presets (sample-specific) */
+    .folder-front { --gradient-start: #2F7DF7; --gradient-end: #7EC8FF; }
+    .folder-second { --gradient-start: #1E6CF0; --gradient-end: #63B3FF; }
+    .folder-third { --gradient-start: #1F5CE6; --gradient-end: #4AA2FF; }
+    .folder-fourth { --gradient-start: #0E2A3D; --gradient-end: #1A3A5A; }
+    
+    /* Add Task icon button */
+    .task-link { position:absolute; right: 16px; bottom: 16px; width: 40px; height: 40px; border-radius: 9999px; background: rgba(255,255,255,0.9); color:#062D52; display:flex; align-items:center; justify-content:center; box-shadow: 0 6px 16px rgba(0,0,0,0.25); text-decoration:none; }
+
+    /* Add a bottom gray bar */
+    .bottom-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background-color: #e5e7eb;
+      z-index: 5;
+      max-width: 390px; /* iPhone portrait width */
+      margin: 0 auto;
+    }
+
+    /* Dark mode overrides */
+    .dark body { background-color:#0b1220; color:#e5e7eb; }
+    .dark .bottom-nav { background-color:#111827; border-top-color:#1f2937; }
+    .dark .bottom-nav { background-color:#111827; border-top-color:#1f2937; }
+    .dark .bottom-bar { background-color:#1f2937; }
+    .dark .app-container { background-color:#0f172a; }
+    .dark .status-bar { background-color:#0f172a; color:#e5e7eb; }
+    .dark .task-link { background: rgba(17,24,39,0.9); color:#e5e7eb; }
+    .dark #projectModal > div { background-color:#111827; color:#e5e7eb; }
+    .dark #projectModal label { color:#9ca3af; }
+    .dark #projectModal input { background-color:#0b1220; color:#e5e7eb; border-color:#1f2937; }
+    .dark #projectModal button#cancelProject { color:#e5e7eb; border-color:#374151; }
+    .dark #projectModal button[type="submit"] { background-color:#2563eb; color:#fff; }
+  </style>
+  <style>
+    /* Responsive additions */
+    @media (min-width: 641px){ .app-container, .bottom-nav, .bottom-bar { max-width: 640px; } }
+    @media (min-width: 901px){ .app-container, .bottom-nav, .bottom-bar { max-width: 900px; } }
+    @media (max-width: 640px){ .project-card { padding: 1rem; } }
+    /* Scale folder card text for smaller screens */
+    .project-card h2 { font-size: clamp(1.15rem, 5vw, 1.5rem); }
+    .project-card p { font-size: clamp(0.95rem, 4.5vw, 1.25rem); }
+    /* Allow the stack container to grow on larger screens and fit on small */
+    #stack { height: auto !important; min-height: clamp(360px, 60vh, 520px); }
+  </style>
+</head>
+<body>
+  <script>try{const s=JSON.parse(localStorage.getItem('userSettings')||'{}'); if(s.theme==='dark') document.documentElement.classList.add('dark');}catch(e){}</script>
+  <div class="app-container">
+    <div class="p-4 pb-20">
+      <!-- Points indicator -->
+      <div class="fixed bg-white rounded-full py-2 px-4 flex items-center shadow-md" style="top: calc(env(safe-area-inset-top, 0px) + 12px); left: 12px;">
+        <span class="text-purple-500 mr-2">✦</span>
+        <span class="font-bold">100</span>
+      </div>
+      
+      <!-- User profile -->
+      <div class="fixed" style="top: calc(env(safe-area-inset-top, 0px) + 12px); right: 12px;">
+        <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow">
+          <span class="text-xl">👤</span>
+        </div>
+      </div>
+      
+      <div class="mt-16">
+        <div class="flex-1">
+          <h1 class="text-4xl font-bold">All Projects,</h1>
+          <h1 class="text-4xl font-bold flex items-center">
+            Folders
+            <span id="projectCount" class="text-gray-400 ml-1">(4)</span>
+          </h1>
+        </div>
+        
+        <p class="text-gray-400 mt-2 mb-8">
+          Swipe up for next folder, down for previous.
+        </p>
+      </div>
+      
+      <div id="stack" class="relative mt-12" style="height: 400px;">
+        <!-- Stacked project cards -->
+        <div class="project-card folder-front" style="z-index: 4; transform: scale(1); opacity: 1;">
+          <h2 class="text-2xl font-bold mb-1">The Base app</h2>
+          <p class="text-xl mb-8">Mobile app design</p>
+          <div class="absolute bottom-6 right-6 text-sm">
+            02/08/2025
+          </div>
+          <a class="task-link" href="tasks.html?project=The%20Base%20app" title="Open Tasks"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg></a>
+        </div>
+        
+        <div class="project-card folder-second" style="top: 40px; z-index: 3; transform: scale(0.95); opacity: 0.8;">
+          <h2 class="text-2xl font-bold mb-1">Onboard</h2>
+          <a class="task-link" href="tasks.html?project=Onboard" title="Open Tasks"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg></a>
+        </div>
+        
+        <div class="project-card folder-third" style="top: 80px; z-index: 2; transform: scale(0.9); opacity: 0.6;">
+          <h2 class="text-2xl font-bold mb-1">Paypal AI</h2>
+          <a class="task-link" href="tasks.html?project=Paypal%20AI" title="Open Tasks"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg></a>
+        </div>
+        
+        <div class="project-card folder-fourth" style="top: 120px; z-index: 1; transform: scale(0.85); opacity: 0.4;">
+          <h2 class="text-2xl font-bold mb-1">Busy Easy</h2>
+          <a class="task-link" href="tasks.html?project=Busy%20Easy" title="Open Tasks"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg></a>
+        </div>
+      </div>
+      
+      <!-- Floating action button -->
+      <div class="fixed bottom-24 right-4 z-50">
+        <button id="addProjectBtn" class="w-14 h-14 rounded-full bg-gray-900 text-white flex items-center justify-center shadow-lg" aria-label="Add project">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+      </div
+
+      <!-- Add Project Bottom Sheet -->
+      <div id="projectModal" class="fixed inset-0 bg-black bg-opacity-30 hidden items-end justify-center z-50">
+        <div class="bg-white w-full max-w-sm rounded-t-2xl p-4 shadow-lg">
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-lg font-semibold">Create Project</h3>
+            <button id="closeProjectModal" class="text-gray-500 hover:text-gray-700" aria-label="Close">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </button>
+          </div>
+          <form id="projectForm" class="space-y-3">
+            <div>
+              <label for="projName" class="block text-sm text-gray-600 mb-1">Name</label>
+              <input id="projName" type="text" class="w-full border rounded px-3 py-2 focus:outline-none focus:ring focus:border-blue-400" placeholder="Project name" required>
+            </div>
+            <div>
+              <label for="projType" class="block text-sm text-gray-600 mb-1">Type</label>
+              <input id="projType" type="text" class="w-full border rounded px-3 py-2" placeholder="e.g., Mobile app design">
+            </div>
+            <div>
+              <label for="projDate" class="block text-sm text-gray-600 mb-1">Due date</label>
+              <input id="projDate" type="date" class="w-full border rounded px-3 py-2">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+              <button type="button" id="cancelProject" class="px-3 py-2 rounded border text-gray-700">Cancel</button>
+              <button type="submit" class="px-3 py-2 rounded bg-blue-600 text-white">Create</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="overview.html" class="bottom-nav-item" aria-label="Home">
+        <span class="bottom-nav-text">Home</span>
+      </a>
+      <a href="projects.html" class="bottom-nav-item active" aria-label="Projects">
+        <span class="bottom-nav-text">Projects</span>
+        <div class="bottom-nav-indicator"></div>
+      </a>
+      <a href="pal.html" class="bottom-nav-item" aria-label="PAO">
+        <span class="bottom-nav-text">PAO</span>
+      </a>
+      <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <span class="bottom-nav-text">Wallet</span>
+      </a>
+    </nav>
+    
+    <!-- Bottom bar -->
+    <div class="bottom-bar"></div>
+  </div>
+
+  <script>
+    (function(){
+      const stack = document.getElementById('stack');
+      if (!stack) return;
+      let cards = Array.from(stack.querySelectorAll('.project-card'));
+      let current = 0;
+
+      const positions = [
+        { top: 0, scale: 1, opacity: 1, z: 4 },
+        { top: 40, scale: 0.95, opacity: 0.85, z: 3 },
+        { top: 80, scale: 0.90, opacity: 0.65, z: 2 },
+        { top: 120, scale: 0.85, opacity: 0.45, z: 1 },
+      ];
+
+      function render() {
+        cards = Array.from(stack.querySelectorAll('.project-card'));
+        cards.forEach((card, i) => {
+          const posIndex = (i - current + cards.length) % cards.length;
+          const p = positions[Math.min(posIndex, positions.length - 1)];
+          card.style.top = p.top + 'px';
+          card.style.transform = 'scale(' + p.scale + ')';
+          card.style.opacity = p.opacity;
+          card.style.zIndex = p.z;
+        });
+      }
+
+      render();
+
+      let startY = null;
+      let deltaY = 0;
+
+      function onStart(y) { startY = y; deltaY = 0; }
+      function onMove(y) { if (startY !== null) deltaY = y - startY; }
+      function onEnd() {
+        if (startY === null) return;
+        if (deltaY < -30) { current = (current + 1) % cards.length; render(); }
+        else if (deltaY > 30) { current = (current - 1 + cards.length) % cards.length; render(); }
+        startY = null; deltaY = 0;
+      }
+
+      stack.addEventListener('touchstart', e => onStart(e.touches[0].clientY), {passive:true});
+      stack.addEventListener('touchmove', e => onMove(e.touches[0].clientY), {passive:true});
+      stack.addEventListener('touchend', onEnd);
+
+      stack.addEventListener('mousedown', e => onStart(e.clientY));
+      window.addEventListener('mousemove', e => onMove(e.clientY));
+      window.addEventListener('mouseup', onEnd);
+
+      stack.addEventListener('wheel', e => {
+        if (e.deltaY > 0) { current = (current + 1) % cards.length; }
+        else { current = (current - 1 + cards.length) % cards.length; }
+        render();
+      }, {passive:true});
+
+      // expose render for external updates
+      window.renderProjectStack = render;
+      window.getProjectStackLength = () => cards.length;
+      window.getProjectStackCurrent = () => current;
+      window.setProjectStackCurrent = (v) => { current = v; };
+    })();
+  </script>
+  <script>
+    // Add-project modal interactions and dynamic card creation
+    (function(){
+      const addBtn = document.getElementById('addProjectBtn');
+      const modal = document.getElementById('projectModal');
+      const closeBtn = document.getElementById('closeProjectModal');
+      const cancelBtn = document.getElementById('cancelProject');
+      const form = document.getElementById('projectForm');
+      const stack = document.getElementById('stack');
+      const countEl = document.getElementById('projectCount');
+
+      if (!addBtn || !modal || !form || !stack) return;
+
+      const palette = ['folder-front','folder-second','folder-third','folder-fourth'];
+      let saved = [];
+
+      function showModal(){
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+      function hideModal(){
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+      function updateCount(){
+        const total = stack.querySelectorAll('.project-card').length;
+        if (countEl) countEl.textContent = `(${total})`;
+      }
+
+      function createCard({name, type, date}){
+        const el = document.createElement('div');
+        const color = palette[stack.querySelectorAll('.project-card').length % palette.length];
+        el.className = `project-card ${color}`;
+        el.innerHTML = `
+          <h2 class="text-2xl font-bold mb-1">${name || 'Untitled Project'}</h2>
+          ${type ? `<p class=\"text-gray-300 text-sm\">${type}</p>` : ''}
+          ${date ? `<p class=\"text-gray-300 text-sm\">${date}</p>` : ''}
+        `;
+        return el;
+      }
+
+      function addProject(proj){
+        const card = createCard(proj);
+        stack.insertBefore(card, stack.firstChild);
+        if (window.setProjectStackCurrent) window.setProjectStackCurrent(0);
+        if (window.renderProjectStack) window.renderProjectStack();
+        updateCount();
+      }
+
+      function loadSaved(){
+        try { saved = JSON.parse(localStorage.getItem('userProjects')||'[]') || []; }
+        catch(e){ saved = []; }
+        saved.forEach(addProject);
+      }
+      function saveProject(proj){
+        saved.push(proj);
+        localStorage.setItem('userProjects', JSON.stringify(saved));
+      }
+
+      addBtn.addEventListener('click', showModal);
+      closeBtn?.addEventListener('click', hideModal);
+      cancelBtn?.addEventListener('click', hideModal);
+      modal.addEventListener('click', (e)=>{ if(e.target === modal) hideModal(); });
+
+      form.addEventListener('submit', (e)=>{
+        e.preventDefault();
+        const name = document.getElementById('projName').value.trim();
+        const type = document.getElementById('projType').value.trim();
+        const dateInput = document.getElementById('projDate').value;
+        const date = dateInput ? new Date(dateInput).toLocaleDateString() : '';
+        const proj = {name, type, date};
+        addProject(proj);
+        saveProject(proj);
+        form.reset();
+        hideModal();
+      });
+
+      // initial
+      loadSaved();
+      updateCount();
+    })();
+  </script>
+  <script>
+    // Auto-attach task links to project cards with project name
+    (function(){
+      const cards = document.querySelectorAll('.project-card');
+      cards.forEach(card => {
+        const title = card.querySelector('h2')?.textContent?.trim() || 'Project';
+        const existing = card.querySelector('.task-link');
+        if (!existing) {
+          const a = document.createElement('a');
+          a.className = 'task-link';
+          a.href = `tasks.html?project=${encodeURIComponent(title)}`;
+          a.title = 'Open Tasks';
+          a.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9 12l2 2 4-4"></path></svg>';
+          card.appendChild(a);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

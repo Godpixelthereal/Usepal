@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings - PAL</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body { background-color: #f8f9fa; margin: 0; padding: 0; }
+    .app-container { max-width: 390px; margin: 0 auto; min-height: 100vh; background-color: white; position: relative; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 84px; }
+    .status-bar { display:flex; justify-content:space-between; padding:5px 15px; font-size:12px; background-color:white; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; background-color: white; padding: 0.75rem 1rem; z-index: 10; max-width: 390px; margin: 0 auto; border-top: 1px solid #f0f0f0; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9ca3af; position:relative; text-decoration:none; }
+    .bottom-nav-item.active { color:#0066ff; }
+    .bottom-nav-icon { margin-bottom: 0.25rem; height: 24px; }
+    .bottom-nav-text { font-size: 0.75rem; }
+    .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: #0066ff; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 5px; background-color: #e5e7eb; z-index: 5; max-width: 390px; margin: 0 auto; }
+
+    .section-title { font-weight: 700; font-size: 18px; color: #111827; }
+    .card { background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 16px; }
+    .toggle { position: relative; width: 48px; height: 28px; background: #e5e7eb; border-radius: 9999px; cursor: pointer; transition: background .2s ease; }
+    .toggle.on { background: #1d4ed8; }
+    .knob { position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; background: #ffffff; border-radius: 9999px; box-shadow: 0 2px 6px rgba(0,0,0,0.12); transition: left .2s ease; }
+    .toggle.on .knob { left: 23px; }
+
+    .saved-banner { position: fixed; top: 12px; left: 0; right: 0; margin: 0 auto; max-width: 390px; display:flex; justify-content:center; }
+    .saved-banner > div { background:#E6F6FF; border: 1px solid #93C5FD; color:#0f172a; border-radius: 12px; padding: 6px 10px; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
+
+    /* Dark theme preview */
+    body.dark { background-color: #0b1220; }
+    body.dark .app-container { background-color: #0b1220; color: #e5e7eb; }
+    body.dark .card { background-color: #111827; color: #e5e7eb; }
+    body.dark .bottom-nav { background-color: #0b1220; border-top-color: #1f2937; }
+    body.dark .bottom-bar { background-color: #1f2937; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="p-4 pb-20">
+      <div class="flex items-center justify-between">
+        <h1 class="text-2xl font-bold">Settings</h1>
+        <a href="dashboard.html" class="text-blue-600 text-sm">Back to Dashboard</a>
+      </div>
+
+      <div class="mt-6 space-y-6">
+        <!-- Profile -->
+        <div class="card">
+          <div class="flex items-center">
+            <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">P</div>
+            <div class="ml-3">
+              <div class="font-semibold" id="profileName">PAL User</div>
+              <div class="text-gray-500 text-sm" id="profileEmail">user@example.com</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preferences -->
+        <div class="card">
+          <div class="section-title mb-3">Preferences</div>
+          <div class="flex items-center justify-between py-2">
+            <div>
+              <div class="font-medium">Notifications</div>
+              <div class="text-gray-500 text-sm">Receive push and in-app alerts</div>
+            </div>
+            <div id="toggleNotifications" class="toggle"><div class="knob"></div></div>
+          </div>
+          <div class="flex items-center justify-between py-2">
+            <div>
+              <div class="font-medium">Smart Alerts</div>
+              <div class="text-gray-500 text-sm">AI-generated tips and warnings</div>
+            </div>
+            <div id="toggleSmartAlerts" class="toggle"><div class="knob"></div></div>
+          </div>
+        </div>
+
+        <!-- Currency -->
+        <div class="card">
+          <div class="section-title mb-3">Currency</div>
+          <select id="currency" class="w-full border rounded-md p-2">
+            <option value="USD">USD — $</option>
+            <option value="NGN">NGN — ₦</option>
+            <option value="EUR">EUR — €</option>
+            <option value="GBP">GBP — £</option>
+          </select>
+        </div>
+
+        <!-- Theme -->
+        <div class="card">
+          <div class="section-title mb-3">Theme</div>
+          <div class="flex gap-3">
+            <button id="themeLight" class="px-3 py-2 rounded bg-gray-200">Light</button>
+            <button id="themeDark" class="px-3 py-2 rounded bg-gray-900 text-white">Dark</button>
+          </div>
+        </div>
+
+        <!-- Credits -->
+        <div class="card">
+          <div class="section-title mb-3">Credits</div>
+          <div class="flex items-center justify-between py-2">
+            <div>
+              <div class="font-medium">Current plan</div>
+              <div id="creditsPlan" class="text-gray-500 text-sm">Free</div>
+            </div>
+            <a href="credits.html" class="px-3 py-2 rounded bg-blue-600 text-white">Manage Credits</a>
+          </div>
+          <div class="text-sm text-gray-500">Balance: <span id="creditsBalance">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="overview.html" class="bottom-nav-item" aria-label="Home">
+        <span class="bottom-nav-text">Home</span>
+      </a>
+      <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <span class="bottom-nav-text">Projects</span>
+      </a>
+      <a href="pal.html" class="bottom-nav-item" aria-label="PAO">
+        <span class="bottom-nav-text">PAO</span>
+      </a>
+      <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <span class="bottom-nav-text">Wallet</span>
+      </a>
+    </nav>
+    <div class="bottom-bar"></div>
+  </div>
+
+  <script>
+    const saveBanner = () => {
+      const holder = document.querySelector('.saved-banner') || document.createElement('div');
+      holder.className = 'saved-banner';
+      holder.innerHTML = '<div>Saved</div>';
+      document.body.appendChild(holder);
+      setTimeout(() => holder.remove(), 1200);
+    };
+
+    const defaultSettings = { notifications: true, smartAlerts: true, currency: 'USD', theme: 'light' };
+    function loadSettings(){
+      try { return JSON.parse(localStorage.getItem('userSettings')||'null') || defaultSettings; }
+      catch(e){ return defaultSettings; }
+    }
+    function saveSettings(s){ localStorage.setItem('userSettings', JSON.stringify(s)); saveBanner(); }
+
+    const settings = loadSettings();
+
+    // Apply theme immediately
+    if (settings.theme === 'dark') document.documentElement.classList.add('dark');
+
+    // Populate UI
+    document.getElementById('toggleNotifications').classList.toggle('on', !!settings.notifications);
+    document.getElementById('toggleSmartAlerts').classList.toggle('on', !!settings.smartAlerts);
+    document.getElementById('currency').value = settings.currency || 'USD';
+
+    // Attach handlers
+    document.getElementById('toggleNotifications').addEventListener('click', (e)=>{
+      e.currentTarget.classList.toggle('on');
+      settings.notifications = e.currentTarget.classList.contains('on');
+      saveSettings(settings);
+    });
+    document.getElementById('toggleSmartAlerts').addEventListener('click', (e)=>{
+      e.currentTarget.classList.toggle('on');
+      settings.smartAlerts = e.currentTarget.classList.contains('on');
+      saveSettings(settings);
+    });
+    document.getElementById('currency').addEventListener('change', (e)=>{
+      settings.currency = e.target.value;
+      saveSettings(settings);
+    });
+
+    document.getElementById('themeLight').addEventListener('click', ()=>{
+      settings.theme = 'light';
+      document.documentElement.classList.remove('dark');
+      saveSettings(settings);
+    });
+    document.getElementById('themeDark').addEventListener('click', ()=>{
+      settings.theme = 'dark';
+      document.documentElement.classList.add('dark');
+      saveSettings(settings);
+    });
+
+    // Profile demo from stored business
+    const bd = JSON.parse(localStorage.getItem('businessData')||'{}');
+    if (bd.name) document.getElementById('profileName').textContent = bd.name;
+    if (bd.category) document.getElementById('profileEmail').textContent = bd.category + ' • Budget $' + (bd.dailyBudget||'0');
+
+    // Credits status
+    const unlimited = localStorage.getItem('palCreditsUnlimited') === 'true';
+    const c = parseInt(localStorage.getItem('palCredits')||'0', 10) || 0;
+    document.getElementById('creditsPlan').textContent = unlimited ? 'Unlimited' : 'Free';
+    document.getElementById('creditsBalance').textContent = unlimited ? '∞' : String(c);
+  </script>
+</body>
+</html>

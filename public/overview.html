@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root { --brand:#0066ff; --bg:#f8fafc; --text:#111827; --muted:#6b7280; --card:#ffffff; --border:#e5e7eb; --success:#10b981; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin:0; font-family:'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); }
+    .app { max-width: 390px; margin: 0 auto; min-height: 100%; position: relative; padding-bottom: 84px; }
+    .header { position: sticky; top:0; background: var(--bg); border-bottom:1px solid var(--border); z-index: 20; }
+    .header-inner { display:flex; align-items:center; justify-content:space-between; padding: 0.75rem 1rem; }
+    .title { font-weight: 700; font-size: 1.1rem; }
+
+    /* New top header style like sample */
+    .profile { display:flex; align-items:center; gap:0.75rem; }
+    .avatar { width:36px; height:36px; border-radius:50%; background:#dbeafe; color:#1d4ed8; font-weight:700; display:flex; align-items:center; justify-content:center; }
+    .welcome { display:flex; flex-direction:column; }
+    .welcome small { color:var(--muted); font-weight:500; }
+    .welcome strong { font-weight:700; }
+    .notif { color:#9ca3af; }
+    .actions { display:flex; align-items:center; gap:12px; }
+
+    .content { padding: 0.75rem 1rem 1rem; }
+
+    /* Hero card */
+    .hero { background: linear-gradient(135deg, #1d4ed8 0%, var(--brand) 55%, #60a5fa 100%); color:#fff; border-radius:20px; padding:20px; min-height:200px; box-shadow: 0 8px 24px rgba(29,78,216,0.25); position:relative; overflow:hidden; }
+    .hero h3 { margin:0; font-size:1rem; opacity:0.9; }
+    .hero .amount { margin-top:8px; font-size:2.2rem; font-weight:800; letter-spacing:0.2px; }
+    .chip { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.15); backdrop-filter: blur(4px); border:1px solid rgba(255,255,255,0.25); color:#fff; border-radius:999px; padding:3px 8px; font-size:0.75rem; margin-top:6px; }
+    .chip .dot { width:8px; height:8px; background:var(--success); border-radius:50%; }
+    .hero-chart { position:absolute; left:0; right:0; bottom:0; height:140px; }
+    .hero-chart canvas { width:100%; height:100%; }
+    .hero svg { position:absolute; right:-20px; bottom:-10px; width:280px; height:140px; opacity:0.45; }
+.badge svg { width:16px; height:16px; }
+
+    /* Stats grid */
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; }
+    .card { background: var(--card); border:1px solid var(--border); border-radius: 16px; padding: 0.75rem; box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
+    .stat { display:flex; flex-direction:column; gap:6px; }
+    .badge { width:26px; height:26px; border-radius:8px; background:#fee2e2; color:#ef4444; display:flex; align-items:center; justify-content:center; font-size:14px; }
+    .label { color:var(--muted); font-size:0.85rem; }
+    .kpi { font-weight:800; font-size:1.25rem; }
+    .updated { margin-top:2px; color:#9ca3af; font-size:0.7rem; }
+
+    /* List and sections */
+    .list { margin-top:0.75rem; }
+    .list-item { display:flex; justify-content:space-between; padding:0.5rem 0; border-bottom:1px solid var(--border); }
+    .links { display:grid; grid-template-columns: 1fr 1fr; gap:0.5rem; margin-top:0.75rem; }
+
+    .chart-card { margin-top:0.75rem; }
+    .chart-wrap { width:100%; height:220px; }
+
+    /* Bottom Navigation Styles */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; background-color: white; padding: 0.75rem 1rem; z-index: 10; max-width: 390px; margin: 0 auto; border-top: 1px solid #f0f0f0; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9ca3af; position:relative; text-decoration:none; }
+    .bottom-nav-item.active { color: var(--brand); }
+    .bottom-nav-text { font-size: 0.75rem; }
+    .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: var(--brand); }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 5px; background-color: #e5e7eb; z-index: 5; max-width: 390px; margin: 0 auto; }
+    .nav-badge { position:absolute; top:-4px; right:-6px; width:8px; height:8px; border-radius:999px; background: var(--brand); }
+ 
+    /* Dark mode variables and overrides */
+    .dark { --brand:#60a5fa; --bg:#0b1220; --text:#e5e7eb; --muted:#9ca3af; --card:#111827; --border:#1f2937; --success:#10b981; }
+    .dark .header { background: var(--bg); border-bottom-color: var(--border); }
+    .dark .card { background: var(--card); border-color: var(--border); }
+    .dark .bottom-nav { background-color: var(--card); border-top-color: var(--border); }
+    .dark .bottom-bar { background-color: var(--border); }
+    .dark .check-item { background: var(--card); border-color: var(--border); }
+    .dark .label { color: var(--muted); }
+    .dark .updated { color:#6b7280; }
+    .dark .donut { background: conic-gradient(var(--brand) calc(var(--pct)*1%), #374151 0); }
+ 
+    /* Checklist styles for Overview tasks */
+    .checklist { display:flex; flex-direction:column; gap:8px; margin-top:0.75rem; }
+    .check-item { display:flex; align-items:center; gap:12px; background:#ffffff; border:1px solid var(--border); border-radius:14px; padding:10px 12px; box-shadow: 0 1px 0 rgba(0,0,0,0.03); }
+    .icon-pill { width:32px; height:32px; border-radius:999px; display:inline-flex; align-items:center; justify-content:center; border:1px solid var(--border); background:#f9fafb; }
+    .icon-pill.done { background:#dcfce7; color:#10b981; border-color:#bbf7d0; }
+    .item-title { font-weight:600; font-size:0.95rem; }
+    .item-subtitle { color:#9ca3af; font-size:0.8rem; }
+    .progress-card { display:flex; align-items:center; justify-content:space-between; background:#ffffff; border:1px solid var(--border); border-radius:14px; padding:10px 12px; margin-top:10px; }
+    .donut { --pct:0; width:28px; height:28px; border-radius:999px; background: conic-gradient(var(--brand) calc(var(--pct)*1%), #e5e7eb 0); }
+    /* Responsive utilities and scalable layout */
+    .app { max-width: 390px; }
+    @media (min-width: 640px){ .app { max-width: 640px; } }
+    @media (min-width: 860px){ .app { max-width: 900px; } }
+
+    .content { padding: 0.75rem 1rem 1rem; }
+    @media (max-width: 640px){ .content { padding: 0.5rem 0.75rem 0.75rem; } }
+
+    .grid { grid-template-columns: 1fr 1fr; }
+    @media (min-width: 900px){ .grid { grid-template-columns: 1fr 1fr 1fr; } }
+    @media (max-width: 480px){ .grid { grid-template-columns: 1fr; } }
+
+    .links { grid-template-columns: 1fr 1fr; }
+    @media (min-width: 640px){ .links { grid-template-columns: 1fr 1fr 1fr; } }
+    @media (max-width: 480px){ .links { grid-template-columns: 1fr; } }
+
+    .hero { min-height: 200px; }
+    .hero .amount { font-size: clamp(1.6rem, 4.5vw, 2.2rem); }
+
+    .bottom-nav, .bottom-bar { max-width: 390px; }
+    @media (min-width: 640px){ .bottom-nav, .bottom-bar { max-width: 640px; } }
+    @media (min-width: 860px){ .bottom-nav, .bottom-bar { max-width: 900px; } }
+  </style>
+</head>
+<body>
+  <script>try{const s=JSON.parse(localStorage.getItem('userSettings')||'{}'); if(s.theme==='dark') document.documentElement.classList.add('dark');}catch(e){}</script>
+  <div class="app">
+    <div class="header">
+      <div class="header-inner">
+        <div class="profile">
+          <div class="avatar">P</div>
+          <div class="welcome">
+            <small>Welcome back!</small>
+            <strong id="bizName">PAL Business Partner</strong>
+          </div>
+        </div>
+        <div class="actions">
+          <a href="notifications.html" class="notif" title="Alerts">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
+          </a>
+          <a href="settings.html" class="notif" title="Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77s1.11.73 1.77.73H21a2 2 0 0 1 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- Hero summary -->
+      <div class="hero">
+        <h3>Profit amount</h3>
+        <div class="amount" id="heroProfit">$0</div>
+        <div class="chip"><span class="dot"></span><span id="heroDelta">+0%</span><span>From the previous week</span></div>
+        <!-- curve removed to use the infographic sparkline -->
+        <!-- infographic sparkline -->
+        <div class="hero-chart"><canvas id="profitChart"></canvas></div>
+      </div>
+
+      <!-- Stats grid like sample -->
+      <div class="grid" style="margin-top:0.75rem">
+        <div class="card stat">
+          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"></rect><path d="M6 10h12M10 6v12"></path></svg></div>
+          <div class="label">Total Products</div>
+          <div class="kpi" id="totalProducts">0</div>
+          <div class="updated" id="productsUpdated">Updated: Today</div>
+        </div>
+        <div class="card stat">
+          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h6l6 6-6 6H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"></path><circle cx="9" cy="11" r="1"></circle></svg></div>
+          <div class="label">Product Category</div>
+          <div class="kpi" id="productCategory">0</div>
+          <div class="updated" id="categoryUpdated">Updated: Today</div>
+        </div>
+        <div class="card stat">
+          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 7h6M9 11h6M9 15h6"></path></svg></div>
+          <div class="label">Total Sold</div>
+          <div class="kpi" id="totalSold">0</div>
+          <div class="updated" id="soldUpdated">Updated: Today</div>
+        </div>
+        <div class="card stat">
+          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 16v-6l8 3v6"></path></svg></div>
+          <div class="label">Monthly Income</div>
+          <div class="kpi" id="monthlyIncome">$0</div>
+          <div class="updated" id="incomeUpdated">Updated: Today</div>
+        </div>
+      </div>
+
+      <!-- Additional KPIs -->
+      <div class="grid" style="margin-top:0.75rem">
+        <div class="card stat">
+          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3z"/><path d="M8 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg></div>
+          <div class="label">Customers</div>
+          <div class="kpi" id="totalCustomers">0</div>
+          <div class="updated" id="customersUpdated">Updated: Today</div>
+        </div>
+        <div class="card stat">
+          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M7 7v14"/><path d="M17 7v14"/></svg></div>
+          <div class="label">New Orders</div>
+          <div class="kpi" id="newOrders">0</div>
+          <div class="updated" id="ordersUpdated">Updated: Today</div>
+        </div>
+        <div class="card stat">
+          <div class="badge" style="background:#eef2ff; color:#1d4ed8"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M19 5l-7 4-7-4"/></svg></div>
+          <div class="label">Expenses</div>
+          <div class="kpi" id="totalExpenses">$0</div>
+          <div class="updated" id="expensesUpdated">Updated: Today</div>
+        </div>
+        <div class="card stat">
+          <div class="badge" style="background:#dcfce7; color:#10b981"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l5 5L21 4"/></svg></div>
+          <div class="label">Net Profit</div>
+          <div class="kpi" id="netProfit">$0</div>
+          <div class="updated" id="profitUpdated">Updated: Today</div>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card" style="margin-top:0.75rem">
+        <div class="label">Recent Activity</div>
+        <div class="list">
+          <div class="list-item"><span>Order #1842 paid</span><span class="label">2m ago</span></div>
+          <div class="list-item"><span>New customer signed up</span><span class="label">10m ago</span></div>
+          <div class="list-item"><span>Inventory restocked</span><span class="label">1h ago</span></div>
+        </div>
+      </div>
+
+      <!-- Smart Alerts -->
+      <div class="card" style="margin-top:0.75rem; display:none">
+        <div class="label">Smart Alerts</div>
+        <div id="alertsContainer" style="margin-top:0.5rem">
+          <div class="list-item" style="border:none">
+            <span><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2z"></path><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8z"></path></svg> Welcome to your dashboard! AI insights will appear here.</span>
+            <span class="label">Today</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks -->
+      <div class="card" style="margin-top:0.75rem">
+        <div class="label">Getting Started</div>
+        <div class="checklist" id="tasksList"></div>
+        <div class="progress-card">
+          <div class="label">Getting Started: <span id="overviewProgressText">0%</span></div>
+          <div class="donut" id="overviewProgressDonut" style="--pct:0"></div>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="card" style="margin-top:0.75rem">
+        <!-- Quick Links removed per design update -->
+<div class="links" id="quickLinks" style="display:none">
+          <a class="card" style="text-align:center; padding:0.5rem" href="projects.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg> Projects</a>
+          <a class="card" style="text-align:center; padding:0.5rem" href="notifications.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2z"></path><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8z"></path></svg> Alerts</a>
+          <a class="card" style="text-align:center; padding:0.5rem" href="settings.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77s1.11.73 1.77.73H21a2 2 0 0 1 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+          <a class="card" style="text-align:center; padding:0.5rem" href="credits.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 9h20"></path></svg> Credits</a>
+          <a class="card" style="text-align:center; padding:0.5rem" href="wallet.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a4 4 0 0 1 4-4h10a3 3 0 0 1 3 3v2h-4a3 3 0 0 0 0 6h4v2a3 3 0 0 1-3 3H7a4 4 0 0 1-4-4V7z"></path><circle cx="16" cy="12" r="1"></circle></svg> Wallet</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="overview.html" class="bottom-nav-item active" aria-label="Home">
+        <span class="bottom-nav-text">Home</span>
+        <div class="bottom-nav-indicator"></div>
+      </a>
+      <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <span class="bottom-nav-text">Projects</span>
+      </a>
+      <a href="pal.html" class="bottom-nav-item" aria-label="PAO">
+        <span class="bottom-nav-text">PAO</span>
+      </a>
+      <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <span class="bottom-nav-text">Wallet</span>
+      </a>
+    </nav>
+    <div class="bottom-bar"></div>
+  </div>
+
+  <script>
+    function loadBusiness() {
+      const biz = JSON.parse(localStorage.getItem('businessInfo') || '{}');
+      document.getElementById('bizName').textContent = biz?.name ? biz.name : 'PAL Business Partner';
+      // Removed walletBadge notification indicator logic
+    }
+
+    function currencySymbol(){
+      try {
+        const s = JSON.parse(localStorage.getItem('userSettings')||'{}');
+        switch(s.currency){ case 'NGN': return '₦'; case 'EUR': return '€'; case 'GBP': return '£'; default: return '$'; }
+      } catch(e){ return '$'; }
+    }
+
+    function updateHeroAmount(current, previous){
+      const symbol = currencySymbol();
+      const amountEl = document.getElementById('heroProfit');
+      const deltaEl = document.getElementById('heroDelta');
+      amountEl.textContent = `${symbol}${Math.max(0, current).toLocaleString(undefined,{maximumFractionDigits:0})}`;
+      const delta = previous ? Math.round(((current - previous)/Math.max(1, Math.abs(previous)))*100) : 0;
+      deltaEl.textContent = `${delta>=0?'+':'-'}${Math.abs(delta)}%`;
+      document.querySelector('.chip .dot').style.background = delta>=0? 'var(--success)' : '#ef4444';
+    }
+
+    function startProfitChart(){
+      const cv = document.getElementById('profitChart');
+      if (!cv) return;
+      const ctx = cv.getContext('2d');
+      const grad = ctx.createLinearGradient(0,0,0,140);
+      grad.addColorStop(0, 'rgba(255,255,255,0.7)');
+      grad.addColorStop(1, 'rgba(255,255,255,0.08)');
+      // Static data - no more random generation
+      const data = [14200, 14800, 15100, 14900, 15300, 15600, 15200, 15800, 16100, 15900, 16400, 16200, 16600, 16800, 16500, 17000, 16700, 17200, 17500, 17300, 17800, 17600, 18000, 17850];
+      const chart = new Chart(cv, {
+        type: 'line',
+        data: { labels: data.map((_,i)=> i), datasets: [{ data, borderColor:'#fff', backgroundColor: grad, tension:0.35, fill:true, pointRadius:0 }] },
+        options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{enabled:false} }, scales:{ x:{display:false}, y:{display:false} } }
+      });
+      // Set static values - no more auto-updating
+      updateHeroAmount(17850, 17600);
+    }
+
+    function loadMetrics() {
+      const sales = 12500.34; const profit = 15237.00; const expenses = 8340; const change = 15; // mock values aligned to screenshot
+      // removed static heroProfit/heroDelta set so live chart controls these
+      document.getElementById('totalProducts').textContent = '25';
+      document.getElementById('productCategory').textContent = '4';
+      document.getElementById('totalSold').textContent = '11,967';
+      document.getElementById('monthlyIncome').textContent = '2.5 jt';
+
+      const sym = currencySymbol();
+      const today = new Date();
+      const pretty = today.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
+      document.getElementById('productsUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('categoryUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('soldUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('incomeUpdated').textContent = `Updated: ${pretty}`;
+      // New KPIs
+      document.getElementById('totalCustomers').textContent = '1,243';
+      document.getElementById('newOrders').textContent = '27';
+      document.getElementById('totalExpenses').textContent = sym + expenses.toLocaleString(undefined,{maximumFractionDigits:0});
+      document.getElementById('netProfit').textContent = sym + profit.toLocaleString(undefined,{maximumFractionDigits:0});
+      document.getElementById('customersUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('ordersUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('expensesUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('profitUpdated').textContent = `Updated: ${pretty}`;
+    }
+
+    function iconSvg(name) {
+      switch (name) {
+        case 'check': return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l5 5L21 4"/></svg>';
+        case 'doc': return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>';
+        case 'calendar': return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>';
+        case 'link': return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.07 0l3.54-3.54a5 5 0 0 0-7.07-7.07L10 5"/><path d="M14 11a5 5 0 0 1-7.07 0L3.39 7.46a5 5 0 0 1 7.07-7.07L14 3"/></svg>';
+        case 'bulb': return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6l1 1h6l1-1c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z"/></svg>';
+        default: return '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/></svg>';
+      }
+    }
+
+    function overviewDefaultTasks() {
+      return [
+        { id: 1, title: 'Update your profile', subtitle: 'Add a photo and social links.', icon: 'check', color: '#10b981', done: true },
+        { id: 2, title: 'Write your first post', subtitle: 'Share your voice — start today.', icon: 'doc', color: '#a78bfa', done: false },
+        { id: 3, title: 'Plan your first post', subtitle: 'Pick the perfect time to publish.', icon: 'calendar', color: '#f59e0b', done: false },
+        { id: 4, title: 'Create your first link', subtitle: 'Make a trackable link to share.', icon: 'link', color: '#10b981', done: false },
+        { id: 5, title: 'Explore today’s inspiration', subtitle: 'Spark ideas with fresh content.', icon: 'bulb', color: '#60a5fa', done: false }
+      ];
+    }
+
+    function readOverviewTasks() {
+      try {
+        const raw = localStorage.getItem('tasks:overview');
+        return raw ? JSON.parse(raw) : overviewDefaultTasks();
+      } catch (e) { return overviewDefaultTasks(); }
+    }
+    function writeOverviewTasks(list) {
+      try { localStorage.setItem('tasks:overview', JSON.stringify(list)); } catch (e) {}
+    }
+
+    function renderOverviewProgress(list) {
+      const total = list.length;
+      const done = list.filter(t => t.done).length;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      const donut = document.getElementById('overviewProgressDonut');
+      const text = document.getElementById('overviewProgressText');
+      if (donut) donut.style.setProperty('--pct', pct);
+      if (text) text.textContent = pct + '%';
+    }
+
+    function loadTasks() {
+      const list = readOverviewTasks();
+      const container = document.getElementById('tasksList');
+      container.innerHTML = '';
+      list.forEach(t => {
+        const row = document.createElement('div');
+        row.className = 'check-item';
+        const pillStyle = t.done ? '' : `style="background:${t.color}22;border-color:${t.color}33"`;
+        row.innerHTML = `
+          <button class="icon-pill ${t.done ? 'done' : ''}" data-id="${t.id}" ${pillStyle}>${t.done ? iconSvg('check') : iconSvg(t.icon)}</button>
+          <div>
+            <div class="item-title">${t.title}</div>
+            <div class="item-subtitle">${t.subtitle}</div>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+      renderOverviewProgress(list);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadBusiness();
+      loadMetrics();
+      loadTasks();
+      startProfitChart();
+      const tasksEl = document.getElementById('tasksList');
+      tasksEl.addEventListener('click', (e) => {
+        const btn = e.target.closest('.icon-pill');
+        if (!btn) return;
+        const id = Number(btn.getAttribute('data-id'));
+        const list = readOverviewTasks();
+        const idx = list.findIndex(t => t.id === id);
+        if (idx > -1) {
+          list[idx].done = !list[idx].done;
+          writeOverviewTasks(list);
+          loadTasks();
+        }
+      });
+    });
+  </script>
+</body>
+</html>

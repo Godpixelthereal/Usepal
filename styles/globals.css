@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --primary: #007BFF;
+  --primary-dark: #0056b3;
+  --vh: 1vh;
+}
+
+body {
+  @apply bg-gray-50 text-gray-800 font-sans;
+  overscroll-behavior: none;
+}
+
+/* Mobile App Container */
+.app-container {
+  @apply relative mx-auto;
+  max-width: 430px;
+  height: calc(var(--vh, 1vh) * 100);
+  background-color: white;
+  overflow: hidden;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  @apply fixed bottom-0 left-0 right-0 flex justify-around items-center bg-white py-3 px-4 z-10;
+  max-width: 430px;
+  margin: 0 auto;
+  border-top: 1px solid #f0f0f0;
+}
+
+.bottom-nav-item {
+  @apply flex flex-col items-center justify-center text-gray-400 relative;
+}
+
+.bottom-nav-item.active {
+  @apply text-blue-500;
+}
+
+.bottom-nav-icon {
+  @apply mb-1;
+  height: 24px;
+}
+
+.bottom-nav-text {
+  @apply text-xs;
+}
+
+.bottom-nav-indicator {
+  @apply absolute -bottom-3 left-0 right-0 mx-auto;
+  width: 24px;
+  height: 2px;
+  background-color: #0066ff;
+}
+
+.project-card {
+  @apply absolute w-full rounded-3xl p-6 shadow-lg transition-all;
+  height: 180px;
+}
+
+.chat-container {
+  @apply p-4 pb-24 overflow-y-auto h-screen-safe;
+}
+
+.message {
+  @apply mb-4 max-w-[85%] rounded-xl p-3;
+}
+
+.message-user {
+  @apply bg-gray-light ml-auto rounded-tr-none;
+}
+
+.message-pal {
+  @apply bg-primary text-white mr-auto rounded-tl-none;
+}
+
+.action-button {
+  @apply bg-white text-primary border border-primary rounded-full px-4 py-2 text-sm font-medium mr-2 mb-2 inline-block;
+}
+
+.action-button:hover {
+  @apply bg-primary text-white;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-md p-4 mb-4;
+}
+
+.input-field {
+  @apply w-full border border-gray-light rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary;
+}
+
+.btn-primary {
+  @apply bg-primary text-white rounded-full px-6 py-2 font-medium;
+}
+
+.btn-secondary {
+  @apply bg-white text-primary border border-primary rounded-full px-6 py-2 font-medium;
+}
+
+.floating-button {
+  @apply fixed bottom-20 right-4 bg-primary text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl shadow-lg z-40;
+}
+
+.slide-up {
+  @apply fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out;
+}
+
+.typing-indicator {
+  @apply flex space-x-1 p-2;
+}
+
+.typing-indicator span {
+  @apply w-2 h-2 bg-white rounded-full opacity-75 animate-pulse;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}

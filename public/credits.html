@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manage Credits - PAL</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body { background-color: #f8f9fa; margin: 0; padding: 0; }
+    .app-container { max-width: 430px; margin: 0 auto; min-height: 100vh; background-color: white; position: relative; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; background-color: white; padding: 0.75rem 1rem; z-index: 10; max-width: 430px; margin: 0 auto; border-top: 1px solid #f0f0f0; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9ca3af; position:relative; text-decoration:none; }
+    .bottom-nav-item.active { color:#0066ff; }
+    .bottom-nav-icon { margin-bottom: 0.25rem; height: 24px; }
+    .bottom-nav-text { font-size: 0.75rem; }
+    .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: #0066ff; }
+
+    .card { background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 16px; }
+    .section-title { font-weight: 700; font-size: 18px; color: #111827; }
+    .plan { border: 1px solid #e5e7eb; border-radius: 16px; padding: 16px; }
+    .plan.active { border-color: #0066ff; box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1); }
+    .badge { display:inline-flex; align-items:center; gap:6px; background:#E6F6FF; color:#062D52; border-radius:9999px; padding:6px 10px; font-weight:600; }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="p-4 pb-20">
+      <div class="flex items-center justify-between mb-4">
+        <h1 class="text-2xl font-bold">Manage Credits</h1>
+        <a href="settings.html" class="text-blue-600 text-sm">Back to Settings</a>
+      </div>
+
+      <div class="card mb-4">
+        <div class="section-title mb-2">Current Status</div>
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="text-gray-500 text-sm">Plan</div>
+            <div id="currentPlan" class="font-semibold">Free</div>
+          </div>
+          <div>
+            <div class="text-gray-500 text-sm">Balance</div>
+            <div id="currentBalance" class="badge"><span>✦</span><span id="balanceValue">0</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-4">
+        <div class="section-title mb-3">Subscribe</div>
+        <div class="space-y-3">
+          <div class="plan" id="planUnlimited">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">Unlimited Plan</div>
+                <div class="text-gray-500 text-sm">Unlimited usage, no credits deducted</div>
+              </div>
+              <button id="activateUnlimited" class="px-3 py-2 rounded bg-blue-600 text-white">Activate</button>
+            </div>
+          </div>
+          <div class="plan">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">Cancel Subscription</div>
+                <div class="text-gray-500 text-sm">Return to credit-based plan</div>
+              </div>
+              <button id="cancelUnlimited" class="px-3 py-2 rounded bg-gray-200">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title mb-3">Top Up</div>
+        <div class="flex items-center justify-between">
+          <div>
+            <div class="font-medium">Add 100 credits</div>
+            <div class="text-gray-500 text-sm">Useful for Free plan users</div>
+          </div>
+          <button id="topUp100" class="px-3 py-2 rounded bg-purple-600 text-white">Add 100</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="overview.html" class="bottom-nav-item" aria-label="Home">
+        <span class="bottom-nav-text">Home</span>
+      </a>
+      <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <span class="bottom-nav-text">Projects</span>
+      </a>
+      <a href="pal.html" class="bottom-nav-item" aria-label="PAO">
+        <span class="bottom-nav-text">PAO</span>
+      </a>
+      <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <span class="bottom-nav-text">Wallet</span>
+      </a>
+    </nav>
+  </div>
+
+  <script>
+    function loadCredits(){ const raw = localStorage.getItem('palCredits'); const n = parseInt(raw||'100',10); return Number.isFinite(n)?n:100; }
+    function saveCredits(v){ localStorage.setItem('palCredits', String(v)); }
+    function isUnlimited(){ return localStorage.getItem('palCreditsUnlimited') === 'true'; }
+    function setUnlimited(flag){ localStorage.setItem('palCreditsUnlimited', flag ? 'true' : 'false'); }
+
+    function updateStatus(){
+      const planEl = document.getElementById('currentPlan');
+      const balEl = document.getElementById('balanceValue');
+      if (isUnlimited()) { planEl.textContent = 'Unlimited'; balEl.textContent = '∞'; document.getElementById('planUnlimited').classList.add('active'); }
+      else { planEl.textContent = 'Free'; balEl.textContent = String(loadCredits()); document.getElementById('planUnlimited').classList.remove('active'); }
+    }
+
+    document.getElementById('activateUnlimited').addEventListener('click', ()=>{ setUnlimited(true); updateStatus(); alert('Unlimited plan activated. PAL will not deduct credits.'); });
+    document.getElementById('cancelUnlimited').addEventListener('click', ()=>{ setUnlimited(false); updateStatus(); alert('Subscription cancelled. PAL will use credits for billable actions.'); });
+    document.getElementById('topUp100').addEventListener('click', ()=>{ if (isUnlimited()) { alert('You are on Unlimited plan. Top-up not required.'); return; } const c = loadCredits()+100; saveCredits(c); updateStatus(); alert('Added 100 credits.'); });
+
+    updateStatus();
+  </script>
+</body>
+</html>

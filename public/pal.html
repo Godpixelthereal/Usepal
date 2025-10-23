@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PAL – Chat</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+  <style>
+    body { background-color: #f8f9fa; margin: 0; padding: 0; }
+    .app-container { max-width: 430px; margin: 0 auto; height: 100vh; background-color: white; position: relative; overflow: hidden; }
+    .status-bar { display:flex; justify-content:space-between; padding:5px 15px; font-size:12px; background-color:white; }
+
+    .chat-container { padding: 16px 16px 120px; height: calc(100vh - 120px); overflow-y: auto; }
+    .message { max-width: 92%; margin-bottom: 16px; padding: 16px 18px; border-radius: 12px; font-size: 15px; line-height: 1.5; box-shadow: none; border: 1px solid rgba(0,0,0,0.04); }
+    .user-message { margin-left: auto; background-color: #ffffff; color: #0f172a; }
+    .pal-message { margin-right: auto; background-color: #f7f7f8; color: #111827; }
+
+    /* Rich content within messages */
+    .message p { margin: 0 0 0.75rem; }
+    .message a { color: #2563eb; text-decoration: underline; }
+    .message img { display:block; max-width: 100%; height: auto; border-radius: 10px; margin-top: 8px; }
+    .message code { background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.9em; }
+    .message pre { background: #0b1220; color: #e5e7eb; padding: 12px; border-radius: 12px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .message .attachment { display:inline-flex; align-items:center; gap:8px; background: rgba(15,23,42,0.04); border: 1px solid rgba(0,0,0,0.06); border-radius: 9999px; padding: 8px 12px; margin: 6px 6px 0 0; text-decoration: none; color: inherit; }
+
+    .typing-indicator { display:flex; align-items:center; gap:4px; }
+    .typing-indicator span { width:6px; height:6px; border-radius:9999px; background:#9ca3af; display:inline-block; animation: blink 1.2s infinite; }
+    .typing-indicator span:nth-child(2){ animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3){ animation-delay: 0.4s; }
+    @keyframes blink { 0%, 80%, 100% { opacity: 0.2; } 40% { opacity: 1; } }
+
+    .message-input-container { position: fixed; bottom: 64px; left: 0; right: 0; max-width: 430px; margin: 0 auto; padding: 10px 16px; background: transparent; }
+    .message-input { flex: 1; min-width: 0; border: none; background: transparent; padding: 12px 14px; font-size: 14px; outline: none; }
+    .send-button { width: 48px; height: 48px; margin-left: 8px; border-radius: 9999px; background: #0f172a; color: #fff; display:flex; align-items:center; justify-content:center; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; background-color: white; padding: 0.75rem 1rem; z-index: 10; max-width: 430px; margin: 0 auto; border-top: 1px solid #f0f0f0; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9ca3af; position:relative; text-decoration:none; }
+    .bottom-nav-item.active { color:#0066ff; }
+    .bottom-nav-icon { margin-bottom: 0.25rem; height: 24px; }
+    .bottom-nav-text { font-size: 0.75rem; }
+    .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: #0066ff; }
+
+    .points { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 12px; background: white; border-radius: 9999px; padding: 8px 14px; display:flex; align-items:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); z-index: 20; }
+    .profile { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 12px; width: 40px; height: 40px; border-radius: 50% !important; background:white; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); z-index: 20; overflow:hidden; aspect-ratio: 1 / 1; }
+    .top-actions { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); right: 12px; display:flex; gap:8px; z-index: 20; }
+    .top-action { width: 40px; height: 40px; border-radius: 9999px; background:white; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); color:#0f172a; }
+    .dark .top-action { background:#111827; color:#e5e7eb; box-shadow:none; }
+    .profile img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display:block; }
+    .menu-floating { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 12px; width: 44px; height: 44px; border-radius: 9999px; background:#EAF6FF; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); z-index: 20; }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 5px; background-color: #e5e7eb; z-index: 5; max-width: 430px; margin: 0 auto; }
+
+    /* ChatGPT-like mobile UI adjustments */
+    .message-row { display:flex; align-items:flex-end; gap:12px; margin-bottom: 12px; }
+    .message-row.user { justify-content:flex-end; }
+    .message-row.pal { justify-content:flex-start; }
+    .avatar { width: 44px; height: 44px; border-radius: 50% !important; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); overflow:hidden; aspect-ratio: 1 / 1; }
+    .avatar.user { background:white; }
+    .avatar.pal { background:#EAF6FF; color:#062D52; }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display:block; }
+    .timestamp { font-size: 12px; color:#1D4ED8; margin-left: 8px; margin-right: 8px; }
+
+    .message-input-container { position: fixed; bottom: 72px; left: 0; right: 0; max-width: 430px; margin: 0 auto; padding: 10px 16px; background: transparent; }
+    .composer-bar { display:flex; align-items:center; gap: 10px; background:#DDF1FF; border-radius: 9999px; padding: 8px 12px; }
+    .composer-icon { width: 44px; height: 44px; border-radius: 9999px; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; }
+    .mic-button { width: 44px; height: 44px; border-radius: 9999px; background:#0f172a; color:#fff; display:flex; align-items:center; justify-content:center; }
+
+    .actions-sheet { position: fixed; left:0; right:0; bottom: 0; max-width: 430px; margin: 0 auto; padding: 16px; background: #E6F6FF; border-top-left-radius: 24px; border-top-right-radius: 24px; box-shadow: 0 -8px 24px rgba(0,0,0,0.08); z-index: 15; }
+    .actions-grid { display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+    .action-card { border-radius: 20px; background:#fff; padding: 16px; height: 110px; display:flex; flex-direction:column; justify-content:flex-start; }
+    .action-card.dark { background:#062D52; color:#fff; }
+    .action-icon { width:32px; height:32px; border-radius:8px; border:2px solid #0066ff; color:#0066ff; display:flex; align-items:center; justify-content:center; margin-bottom: 12px; }
+    .action-label { font-size: 14px; line-height: 1.2; }
+    .hidden { display:none; }
+
+    .attachment { display:flex; align-items:center; gap:8px; background:#E6F6FF; border-radius:14px; padding:8px 12px; }
+    .attachment.doc { background:#E6F6FF; color:#062D52; }
+    .attachment.doc span:first-child { width:32px; height:32px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; background:#062D52; color:#fff; }
+    .attachment img { max-width: 80%; border-radius:12px; }
+    .attachment-audio audio { width: 100%; }
+      .action-card.dark .action-icon { border-color: #fff; color: #fff; }
+      .voice-note { display:flex; align-items:center; gap:12px; background:#E6F6FF; border-radius:16px; padding:10px 12px; }
+      .voice-play { width:40px; height:40px; border-radius:9999px; background:#062D52; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+      .voice-progress { flex:1; height:6px; background:#DCEBFF; border-radius:9999px; overflow:hidden; position:relative; }
+      .voice-progress .fill { position:absolute; left:0; top:0; bottom:0; width:0%; background:#1D4ED8; }
+      .voice-time { font-size:12px; color:#1D4ED8; min-width:44px; text-align:right; }
+
+    /* Dark mode overrides */
+    .dark body { background-color:#0b1220; color:#e5e7eb; }
+    .dark .app-container { background-color:#0b1220; }
+    .dark .status-bar { background-color:#0b1220; color:#e5e7eb; }
+    .dark .chat-container { background-color:transparent; }
+    .dark .message { border-color: rgba(255,255,255,0.08); }
+    .dark .pal-message { background-color:#2e2f35; color:#e5e7eb; }
+    .dark .user-message { background-color:#0b1220; color:#e5e7eb; }
+    .dark .message a { color:#93c5fd; }
+    .dark .message code { background: rgba(255,255,255,0.08); }
+    .dark .message pre { background:#0f172a; }
+    .dark .message .attachment { background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.08); }
+    .dark .composer-bar { background-color:#111827; }
+    .dark .message-input { color:#e5e7eb; }
+    .dark .send-button { background:#2563eb; color:#fff; }
+    .dark .mic-button, .dark .composer-icon { background:#2563eb; color:#fff; }
+    .dark .bottom-nav { background-color:#111827; border-top-color:#1f2937; }
+    .dark .bottom-bar { background-color:#1f2937; }
+    .dark .points { background:#111827; color:#e5e7eb; box-shadow:none; }
+    .dark .profile { background:#111827; }
+    .dark .menu-floating { background:#1f2937; color:#e5e7eb; }
+    .dark .actions-sheet { background:#0b1220; box-shadow:none; }
+    .dark .action-card { background:#111827; color:#e5e7eb; }
+    .dark .action-card.dark { background:#0f172a; color:#fff; }
+    .dark .action-icon { border-color:#60a5fa; color:#60a5fa; }
+    .dark .attachment { background:#111827; color:#e5e7eb; }
+    .dark .voice-note { background:#111827; }
+    .dark .voice-progress { background:#1f2937; }
+    .dark .voice-progress .fill { background:#2563eb; }
+    .dark .timestamp { color:#93c5fd; }
+  </style>
+</head>
+<body>
+  <script>try{const s=JSON.parse(localStorage.getItem('userSettings')||'{}'); if(s.theme !== 'light') document.documentElement.classList.add('dark');}catch(e){ document.documentElement.classList.add('dark'); }</script>
+  <div class="app-container">
+
+    <div class="menu-floating">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="5" y="7" width="14" height="2" rx="1" fill="#0f172a"/>
+        <rect x="5" y="11" width="14" height="2" rx="1" fill="#0f172a"/>
+        <rect x="5" y="15" width="14" height="2" rx="1" fill="#0f172a"/>
+      </svg>
+    </div>
+
+    <div class="top-actions" aria-label="Top actions">
+      <a href="notifications.html" class="top-action" title="Alerts" aria-label="Alerts">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2z"/>
+          <path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2h16l-2-2z" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </a>
+      <a href="settings.html" class="top-action" title="Settings" aria-label="Settings">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.45a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.55 15 1.65 1.65 0 0 0 2 14h-.09a2 2 0 1 1 0-4H2a1.65 1.65 0 0 0 1.55-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.55 1.65 1.65 0 0 0 9 3h.09a2 2 0 1 1 4 0H13a1.65 1.65 0 0 0 1 1.55 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20 8a1.65 1.65 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z" fill="none" stroke="currentColor" stroke-width="2"/>
+        </svg>
+      </a>
+    </div>
+
+    <div id="chat" class="chat-container"></div>
+    <div id="suggestions" class="px-4 pb-2 flex gap-2 flex-wrap"></div>
+
+    <form id="composer" class="message-input-container">
+      <div class="composer-bar">
+        <button id="toggleActions" type="button" class="composer-icon" aria-label="Open actions">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="6" cy="12" r="2"/>
+            <circle cx="12" cy="12" r="2"/>
+            <circle cx="18" cy="12" r="2"/>
+          </svg>
+        </button>
+        <input id="input" type="text" class="message-input" placeholder="Ask anything" />
+        <button id="micBtn" type="button" class="mic-button" aria-label="Record audio">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 15a3 3 0 0 0 3-3V8a3 3 0 0 0-6 0v4a3 3 0 0 0 3 3z" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M19 12a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="2" fill="none"/>
+            <path d="M12 19v3" stroke="currentColor" stroke-width="2"/>
+          </svg>
+        </button>
+        <button class="send-button" type="submit" aria-label="Send">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 11l18-8-8 18-2-7-8-3z" stroke="currentColor" stroke-width="2" fill="none"/>
+          </svg>
+        </button>
+      </div>
+    </form>
+
+    <div id="actions" class="actions-sheet hidden">
+      <div class="actions-grid">
+        <button id="action-docs" type="button" class="action-card dark">
+          <div class="action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M6 3h8l5 5v13H6z" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M14 3v6h6" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M8 13h8M8 17h8" stroke="currentColor" stroke-width="2"/>
+            </svg>
+          </div>
+          <div class="action-label">Attach new<br/>Documents</div>
+        </button>
+        <button id="action-photos" type="button" class="action-card">
+          <div class="action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="9" cy="11" r="2" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M20 17l-4-4-3 3-2-2-5 5" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="action-label">Upload new<br/>Photos</div>
+        </button>
+        <button id="action-camera" type="button" class="action-card">
+          <div class="action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="4" y="7" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+              <path d="M9 7l2-3h2l2 3" stroke="currentColor" stroke-width="2" fill="none"/>
+              <circle cx="12" cy="13" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+            </svg>
+          </div>
+          <div class="action-label">Take direct<br/>Photos</div>
+        </button>
+        <button id="action-audio" type="button" class="action-card">
+            <div class="action-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 15a3 3 0 0 0 3-3V8a3 3 0 0 0-6 0v4a3 3 0 0 0 3 3z" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M19 12a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M12 19v3" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="action-label">Upload an<br/>Audio file</div>
+          </button>
+          <button id="action-invoice" type="button" class="action-card">
+            <div class="action-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
+                <path d="M8 8h8M8 12h8M8 16h6" stroke="currentColor" stroke-width="2"/>
+              </svg>
+            </div>
+            <div class="action-label">Generate new<br/>Invoice</div>
+          </button>
+          <button id="action-gen-image" type="button" class="action-card">
+            <div class="action-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/>
+                <path d="M7 14l3-3 3 3 3-4 3 4" stroke="currentColor" stroke-width="2" fill="none"/>
+              </svg>
+            </div>
+            <div class="action-label">Generate new<br/>Image</div>
+          </button>
+          <button id="action-more" type="button" class="action-card">
+            <div class="action-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="6" cy="12" r="2"/>
+                <circle cx="12" cy="12" r="2"/>
+                <circle cx="18" cy="12" r="2"/>
+              </svg>
+            </div>
+            <div class="action-label">More<br/>actions</div>
+          </button>
+        <button id="action-report" type="button" class="action-card">
+          <div class="action-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M4 18h16" stroke="currentColor" stroke-width="2"/>
+              <rect x="6" y="10" width="3" height="6" fill="currentColor"/>
+              <rect x="11" y="7" width="3" height="9" fill="currentColor"/>
+              <rect x="16" y="12" width="3" height="4" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="action-label">Check weekly<br/>Report</div>
+        </button>
+      </div>
+      <input id="docInput" type="file" accept="application/pdf,.pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple class="hidden"/>
+      <input id="photoInput" type="file" accept="image/*" capture="environment" multiple class="hidden"/>
+      <input id="audioInput" type="file" accept="audio/*" multiple class="hidden"/>
+    </div>
+
+    <nav class="bottom-nav">
+      <a href="overview.html" class="bottom-nav-item" aria-label="Home">
+        <span class="bottom-nav-text">Home</span>
+      </a>
+      <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <span class="bottom-nav-text">Projects</span>
+      </a>
+      <a href="pal.html" class="bottom-nav-item active" aria-label="PAO">
+        <span class="bottom-nav-text">PAO</span>
+        <div class="bottom-nav-indicator"></div>
+      </a>
+      <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <span class="bottom-nav-text">Wallet</span>
+      </a>
+    </nav>
+
+    <div class="bottom-bar"></div>
+  </div>
+
+    <div class="bottom-bar"></div>
+  </div>
+
+  <script src="js/pao.js"></script>
+  <script>
+    const chatEl = document.getElementById('chat');
+    const inputEl = document.getElementById('input');
+    const composerEl = document.getElementById('composer');
+    const suggestionsEl = document.getElementById('suggestions');
+    const actionsEl = document.getElementById('actions');
+    const toggleActionsBtn = document.getElementById('toggleActions');
+    const docInput = document.getElementById('docInput');
+    const photoInput = document.getElementById('photoInput');
+    const audioInput = document.getElementById('audioInput');
+    const micBtn = document.getElementById('micBtn');
+
+    // Credits system
+    const pointsCountEl = document.querySelector('.points .font-bold');
+    const loadCredits = () => {
+      const raw = localStorage.getItem('palCredits');
+      const n = parseInt(raw || '100', 10);
+      return Number.isFinite(n) ? n : 100;
+    };
+    const isUnlimited = () => localStorage.getItem('palCreditsUnlimited') === 'true';
+    let credits = loadCredits();
+    const saveCredits = () => localStorage.setItem('palCredits', String(credits));
+    const updateCreditsUI = () => { if (pointsCountEl) pointsCountEl.textContent = isUnlimited() ? '∞' : String(credits); };
+    updateCreditsUI();
+    const canCharge = (cost) => isUnlimited() || credits >= cost;
+    const charge = (cost) => { if (isUnlimited()) return true; if (credits < cost) return false; credits -= cost; saveCredits(); updateCreditsUI(); return true; };
+    const save = (messages) => {
+      const persistable = messages.map(m => ({
+        ...m,
+        attachments: (m.attachments || []).map(att => ({
+          ...att,
+          url: att.url && String(att.url).startsWith('blob:') ? undefined : att.url,
+        }))
+      }));
+      localStorage.setItem('palMessages', JSON.stringify(persistable));
+    };
+    const load = () => {
+      const raw = JSON.parse(localStorage.getItem('palMessages') || '[]');
+      return raw.map(m => ({
+        ...m,
+        attachments: (m.attachments || []).map(att => ({
+          ...att,
+          url: att.url && String(att.url).startsWith('blob:') ? undefined : att.url,
+        }))
+      }));
+    };
+
+    const formatTime = (d = new Date()) => {
+      let h = d.getHours();
+      const m = d.getMinutes().toString().padStart(2, '0');
+      const ampm = h >= 12 ? 'pm' : 'am';
+      h = h % 12 || 12;
+      return `${h}:${m}${ampm}`;
+    };
+
+    const greet = () => {
+      const hour = new Date().getHours();
+      if (hour < 12) return "Good morning!";
+      if (hour < 17) return "Good afternoon!";
+      return "Good evening!";
+    };
+
+    const palReply = (text) => {
+      const t = text.toLowerCase();
+      if (t.includes('sales')) return "Your sales are trending up by 8% week-over-week. Would you like a short plan to keep the momentum?";
+      if (t.includes('expense') || t.includes('cost')) return "Expenses rose 3% this month, mostly logistics. I can suggest three quick savings tips.";
+      if (t.includes('project')) return "You have 4 active projects. The Base App is on track. Want me to set a reminder for the next milestone?";
+      if (t.includes('overview') || t.includes('summary')) return "Here’s your overview: sales ₦1.2m, expenses ₦620k, profit ₦580k. Solid work!";
+      if (t.includes('hello') || t.includes('hi')) return `${greet()} I'm PAL. How can I help you today?`;
+      return "Got it. I’m on it. Do you want a smart alert for this?";
+    };
+
+    const render = (messages) => {
+      chatEl.innerHTML = '';
+      messages.forEach(m => {
+        const row = document.createElement('div');
+        row.className = `message-row ${m.sender === 'user' ? 'user' : 'pal'}`;
+
+        const avatar = document.createElement('div');
+        avatar.className = `avatar ${m.sender === 'user' ? 'user' : 'pal'}`;
+        const img = document.createElement('img');
+        img.alt = m.sender === 'user' ? 'User' : 'PAL';
+        if (m.sender === 'user') {
+          img.src = '/images/user-avatar.jpg';
+          img.onerror = () => {
+            if (img.dataset.tryPng !== '1') {
+              img.dataset.tryPng = '1';
+              img.src = '/images/user-avatar.png';
+            } else {
+              img.remove();
+              avatar.innerHTML = '<span class="text-xl">👤</span>';
+            }
+          };
+        } else {
+          img.src = '/images/pal-logo.svg';
+          img.onerror = () => {
+            if (img.dataset.tryPng !== '1') {
+              img.dataset.tryPng = '1';
+              img.src = '/images/pal-logo.png';
+            } else {
+              img.remove();
+              avatar.innerHTML = '<span class="text-xl">💬</span>';
+            }
+          };
+        }
+        avatar.appendChild(img);
+
+        const bubble = document.createElement('div');
+        bubble.className = `message ${m.sender === 'user' ? 'user-message' : 'pal-message'}`;
+
+        if (m.attachments && m.attachments.length) {
+          m.attachments.forEach(att => {
+            if (att.type === 'doc') {
+              const pill = document.createElement('a');
+              pill.href = att.url || '#';
+              pill.target = '_blank';
+              pill.className = 'attachment doc';
+              pill.innerHTML = `<span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M7 3h7l4 4v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" stroke="currentColor" stroke-width="2"/><path d="M14 3v5h5" stroke="currentColor" stroke-width="2"/><path d="M8 12h8M8 16h6" stroke="currentColor" stroke-width="2"/></svg></span><span>${att.name || 'Document'}</span><span class="text-xs text-gray-500">${att.ext || ''}</span>`;
+              bubble.appendChild(pill);
+            } else if (att.type === 'image') {
+              if (att.url) {
+                const img = document.createElement('img');
+                img.src = att.url;
+                img.alt = att.name || 'Photo';
+                bubble.appendChild(img);
+              } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'attachment';
+                placeholder.innerHTML = '<span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="9" cy="11" r="2" stroke="currentColor" stroke-width="2"/><path d="M20 17l-4-4-3 3-2-2-5 5" stroke="currentColor" stroke-width="2"/></svg></span><span>Photo (preview unavailable)</span>';
+                bubble.appendChild(placeholder);
+              }
+            } else if (att.type === 'audio') {
+              if (att.url) {
+                const player = document.createElement('div');
+                player.className = 'voice-note';
+
+                const playBtn = document.createElement('button');
+                playBtn.type = 'button';
+                playBtn.className = 'voice-play';
+                playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5l12 7-12 7V5z"/></svg>';
+
+                const progress = document.createElement('div');
+                progress.className = 'voice-progress';
+                const fill = document.createElement('div');
+                fill.className = 'fill';
+                progress.appendChild(fill);
+
+                const timeEl = document.createElement('div');
+                timeEl.className = 'voice-time';
+                timeEl.textContent = '0:00';
+
+                player.appendChild(playBtn);
+                player.appendChild(progress);
+                player.appendChild(timeEl);
+                bubble.appendChild(player);
+
+                const audioObj = new Audio(att.url);
+                const fmt = (s) => {
+                  const m = Math.floor(s / 60);
+                  const sec = Math.floor(s % 60);
+                  return `${m}:${sec.toString().padStart(2,'0')}`;
+                };
+                let isPlaying = false;
+
+                playBtn.addEventListener('click', () => {
+                  if (!isPlaying) {
+                    audioObj.play();
+                    isPlaying = true;
+                    playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5l12 7-12 7V5z"/></svg>';
+                  } else {
+                    audioObj.pause();
+                    isPlaying = false;
+                    playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5l12 7-12 7V5z"/></svg>';
+                  }
+                });
+
+                audioObj.addEventListener('timeupdate', () => {
+                  const dur = audioObj.duration || 0;
+                  const pct = dur ? (audioObj.currentTime / dur) * 100 : 0;
+                  fill.style.width = `${pct}%`;
+                  timeEl.textContent = fmt(audioObj.currentTime);
+                });
+                audioObj.addEventListener('ended', () => {
+                  isPlaying = false;
+                  playBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5l12 7-12 7V5z"/></svg>';
+                });
+
+                progress.addEventListener('click', (e) => {
+                  const rect = progress.getBoundingClientRect();
+                  const x = e.clientX - rect.left;
+                  const pct = Math.max(0, Math.min(1, x / rect.width));
+                  const dur = audioObj.duration || 0;
+                  audioObj.currentTime = dur * pct;
+                });
+              } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'attachment';
+                placeholder.innerHTML = '<span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15a3 3 0 0 0 3-3V8a3 3 0 0 0-6 0v4a3 3 0 0 0 3 3z" stroke="currentColor" stroke-width="2"/><path d="M19 12a7 7 0 0 1-14 0" stroke="currentColor" stroke-width="2"/><path d="M12 19v3" stroke="currentColor" stroke-width="2"/></svg></span><span>Voice note (playback unavailable)</span>';
+                bubble.appendChild(placeholder);
+              }
+            } else if (att.type === 'invoice') {
+              if (att.url) {
+                const link = document.createElement('a');
+                link.href = att.url;
+                link.download = att.name || 'invoice.txt';
+                link.className = 'attachment doc';
+                link.innerHTML = '<span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h6" stroke="currentColor" stroke-width="2"/></svg></span><span>Invoice</span>';
+                bubble.appendChild(link);
+              } else {
+                const placeholder = document.createElement('div');
+                placeholder.className = 'attachment doc';
+                placeholder.innerHTML = '<span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" stroke-width="2"/><path d="M8 8h8M8 12h8M8 16h6" stroke="currentColor" stroke-width="2"/></svg></span><span>Invoice (download unavailable)</span>';
+                bubble.appendChild(placeholder);
+              }
+            } else if (att.type === 'report') {
+              const div = document.createElement('div');
+              div.className = 'attachment';
+              div.innerHTML = `<span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 18h16" stroke="currentColor" stroke-width="2"/><rect x="6" y="10" width="3" height="6" fill="currentColor"/><rect x="11" y="7" width="3" height="9" fill="currentColor"/><rect x="16" y="12" width="3" height="4" fill="currentColor"/></svg></span><span>${att.text}</span>`;
+              bubble.appendChild(div);
+            }
+          });
+          if (m.text) {
+            const p = document.createElement('div');
+            p.textContent = m.text;
+            bubble.appendChild(p);
+          }
+        } else {
+          bubble.textContent = m.text;
+        }
+
+        const time = document.createElement('span');
+        time.className = 'timestamp';
+        time.textContent = m.time || formatTime();
+
+        if (m.sender === 'pal') {
+          row.appendChild(avatar);
+          row.appendChild(bubble);
+          row.appendChild(time);
+        } else {
+          row.appendChild(bubble);
+          row.appendChild(time);
+          row.appendChild(avatar);
+        }
+
+        chatEl.appendChild(row);
+      });
+      chatEl.scrollTop = chatEl.scrollHeight;
+    };
+
+    let messages = load();
+    if (messages.length === 0) {
+      messages = [{ id: Date.now(), sender: 'pal', text: `${greet()} I'm PAL, your AI business partner. Ask me anything.`, time: formatTime() }];
+      save(messages);
+    }
+    render(messages);
+
+    // Click-to-go-back when no document uploaded
+    let hasDoc = messages.some(m => (m.attachments || []).some(att => att.type === 'doc'));
+    const backOnClick = (e) => {
+      if (hasDoc) return;
+      if (e.target.closest('button, input, a, form, .actions-sheet, .composer-bar, .bottom-nav')) return;
+      window.history.back();
+    };
+    if (!hasDoc) {
+      document.addEventListener('click', backOnClick, true);
+    }
+
+    // Actions sheet toggle
+    toggleActionsBtn?.addEventListener('click', () => {
+      actionsEl.classList.toggle('hidden');
+    });
+
+    // Upload handlers
+    document.getElementById('action-docs')?.addEventListener('click', () => docInput.click());
+    document.getElementById('action-photos')?.addEventListener('click', () => photoInput.click());
+    document.getElementById('action-camera')?.addEventListener('click', () => photoInput.click()); // uses capture
+    document.getElementById('action-audio')?.addEventListener('click', () => audioInput.click());
+
+    docInput?.addEventListener('change', () => {
+      Array.from(docInput.files).forEach(file => {
+        const ext = (file.name.split('.').pop() || '').toUpperCase();
+        const url = URL.createObjectURL(file);
+        messages.push({ id: Date.now()+Math.random(), sender: 'user', text: '', time: formatTime(), attachments: [{ type: 'doc', name: file.name, ext, url }] });
+      });
+      render(messages); save(messages);
+      actionsEl.classList.add('hidden');
+      // mark that a document has been uploaded and disable back-on-click behavior
+      hasDoc = true;
+      document.removeEventListener('click', backOnClick, true);
+      localStorage.setItem('palHasDoc', '1');
+      streamReply('Thanks, I have received your document. I will analyze it for profitability insights.');
+    });
+
+    photoInput?.addEventListener('change', () => {
+      Array.from(photoInput.files).forEach(file => {
+        const url = URL.createObjectURL(file);
+        messages.push({ id: Date.now()+Math.random(), sender: 'user', text: '', time: formatTime(), attachments: [{ type: 'image', name: file.name, url }] });
+      });
+      render(messages); save(messages);
+      actionsEl.classList.add('hidden');
+      streamReply('Photo received. I can extract text or analyze quality for branding if you like.');
+    });
+
+    audioInput?.addEventListener('change', () => {
+      Array.from(audioInput.files).forEach(file => {
+        const url = URL.createObjectURL(file);
+        messages.push({ id: Date.now()+Math.random(), sender: 'user', text: '', time: formatTime(), attachments: [{ type: 'audio', name: file.name, url }] });
+      });
+      render(messages); save(messages);
+      actionsEl.classList.add('hidden');
+      streamReply('Audio uploaded. I can transcribe and summarize key points.');
+    });
+
+    // Generate invoice
+    document.getElementById('action-invoice')?.addEventListener('click', () => {
+      if (!canCharge(25)) {
+        alert('Not enough credits to generate invoice. Need 25 credits.');
+        streamReply('You have insufficient credits to generate an invoice (need 25).');
+        return;
+      }
+      charge(25);
+      const content = `Invoice\nDate: ${new Date().toLocaleDateString()}\nItems: Design Service (₦150,000)\nTaxes: ₦11,250\nTotal: ₦161,250`;
+      const blob = new Blob([content], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      messages.push({ id: Date.now()+Math.random(), sender: 'user', text: '', time: formatTime(), attachments: [{ type: 'invoice', name: 'invoice.txt', url }] });
+      render(messages); save(messages);
+      actionsEl.classList.add('hidden');
+      const msg = isUnlimited() ? 'Invoice generated (Unlimited plan: no credits deducted). Tap to download. Want me to email it to your client?' : 'Invoice generated (25 credits deducted). Tap to download. Want me to email it to your client?';
+      streamReply(msg);
+    });
+
+    // Weekly report
+    document.getElementById('action-report')?.addEventListener('click', () => {
+      const reportText = 'Weekly Report: sales ₦1.2m, expenses ₦620k, profit ₦580k. 3 tasks due, 1 overdue.';
+      messages.push({ id: Date.now()+Math.random(), sender: 'pal', text: '', time: formatTime(), attachments: [{ type: 'report', text: reportText }] });
+      render(messages); save(messages);
+    });
+
+    // Mic recording (basic)
+    micBtn?.addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const recorder = new MediaRecorder(stream);
+        const chunks = [];
+        recorder.ondataavailable = e => chunks.push(e.data);
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'audio/webm' });
+          const url = URL.createObjectURL(blob);
+          messages.push({ id: Date.now()+Math.random(), sender: 'user', text: '', time: formatTime(), attachments: [{ type: 'audio', name: 'recording.webm', url }] });
+          render(messages); save(messages);
+          streamReply('Got your voice note. I can transcribe and draft a response.');
+        };
+        recorder.start();
+        setTimeout(() => recorder.stop(), 3000); // record 3 seconds
+      } catch (err) {
+        alert('Microphone access denied or unsupported.');
+      }
+    });
+
+    // Streaming PAL reply like ChatGPT
+    function streamReply(text) {
+      const typingEl = document.createElement('div');
+      typingEl.className = 'message pal-message typing-indicator';
+      typingEl.innerHTML = '<span></span><span></span><span></span>';
+      chatEl.appendChild(typingEl);
+      chatEl.scrollTop = chatEl.scrollHeight;
+
+      setTimeout(() => {
+        typingEl.remove();
+        const reply = { id: Date.now()+Math.random(), sender: 'pal', text: '', time: formatTime() };
+        messages.push(reply);
+        let i = 0;
+        const interval = setInterval(() => {
+          reply.text += text[i] || '';
+          render(messages);
+          save(messages);
+          i++;
+          if (i >= text.length) clearInterval(interval);
+        }, 20);
+      }, 600);
+    }
+
+    // Send message
+    composerEl.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const text = inputEl.value.trim();
+      if (!text) return;
+      const userMsg = { id: Date.now(), sender: 'user', text, time: formatTime() };
+      messages.push(userMsg);
+      render(messages);
+      save(messages);
+      inputEl.value = '';
+      actionsEl.classList.add('hidden');
+
+      // Try PAO command handling first
+      try {
+        const ctx = { projectId: localStorage.getItem('pao_current_project_id') || null };
+        if (window.PAO && typeof window.PAO.handleCommand === 'function') {
+          const handled = window.PAO.handleCommand(text, ctx);
+          const looksLikeCommand = /^(create project|new project)/i.test(text) || /(assign( these)? tasks|show progress|who hasn['’]?t submitted|who has not submitted)/i.test(text);
+          if (handled && (handled.data || looksLikeCommand)) {
+            if (handled.data && handled.data.project) {
+              localStorage.setItem('pao_current_project_id', handled.data.project.id);
+            }
+            let reply = handled.reply || '';
+            if (handled.data && handled.data.tasks && handled.data.tasks.length) {
+              const lines = handled.data.tasks.slice(0,6).map(t => `- [${t.status}] ${t.role}: ${t.title}`);
+              reply += `\n${lines.join('\n')}`;
+              if (handled.data.tasks.length > 6) reply += `\n…and ${handled.data.tasks.length - 6} more tasks.`;
+            }
+            if (handled.data && handled.data.owners && handled.data.owners.length) {
+              reply += `\nPending owners: ${handled.data.owners.map(o=>o.name).join(', ')}.`;
+            }
+            streamReply(reply);
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore PAO errors and fall back
+      }
+
+      try {
+        const res = await fetch('http://localhost:8012/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        const replyText = data?.reply || palReply(text);
+        streamReply(replyText);
+      } catch (err) {
+        // Fallback to local keyword responder if API fails
+        streamReply(palReply(text));
+      }
+    });
+  </script>
+</body>
+</html>

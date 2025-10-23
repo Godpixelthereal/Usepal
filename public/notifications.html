@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --brand:#0066ff; --bg:#f8fafc; --text:#111827; --muted:#6b7280; --card:#ffffff; --border:#e5e7eb; --success:#10b981; --warning:#f59e0b; --danger:#ef4444; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin:0; font-family:'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); }
+    .app { max-width: 390px; margin: 0 auto; min-height: 100%; position: relative; padding-bottom: 84px; }
+    .header { position: sticky; top:0; background: var(--bg); border-bottom:1px solid var(--border); z-index: 20; }
+    .header-inner { display:flex; align-items:center; justify-content:space-between; padding: 0.75rem 1rem; }
+    .title { font-weight: 700; font-size: 1.1rem; }
+    .actions { display:flex; gap:0.5rem; }
+    .btn { padding: 0.5rem 0.75rem; border-radius: 10px; border:1px solid var(--border); background: #fff; color: var(--text); font-weight: 600; font-size: 0.9rem; cursor:pointer; }
+    .filters { padding: 0.75rem 1rem; display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; }
+    .field { display:flex; flex-direction:column; gap:0.25rem; }
+    .label { font-size: 0.8rem; color: var(--muted); }
+    select { padding: 0.5rem; border-radius: 10px; border:1px solid var(--border); background:#fff; color:var(--text); }
+    .content { padding: 0.5rem 0.75rem 1rem; }
+    .card { background: var(--card); border:1px solid var(--border); border-radius: 14px; padding: 0.75rem; margin-bottom: 0.75rem; box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
+    .card-head { display:flex; align-items:flex-start; justify-content:space-between; }
+    .badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 999px; border:1px solid var(--border); color: var(--muted); }
+    .meta { display:flex; gap:0.75rem; margin-top:0.25rem; color: var(--muted); font-size:0.85rem; }
+    .channels { padding: 0.5rem 1rem; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:0.5rem; }
+    .toggle { display:flex; align-items:center; gap:0.5rem; }
+    .toggle input { width: 40px; height: 22px; }
+    .empty { text-align:center; color:var(--muted); padding: 1.5rem 0; }
+
+    .pill { padding:0.25rem 0.5rem; border-radius:999px; font-size:0.75rem; font-weight:600; }
+    .pill.success { background:#ecfdf5; color:#065f46; border:1px solid #d1fae5; }
+    .pill.warning { background:#fffbeb; color:#92400e; border:1px solid #fde68a; }
+    .pill.danger { background:#fee2e2; color:#7f1d1d; border:1px solid #fecaca; }
+
+    .card-actions { display:flex; gap:0.5rem; margin-top:0.75rem; }
+    .btn-small { padding: 0.4rem 0.6rem; border-radius: 8px; border:1px solid var(--border); background:#fff; font-size:0.8rem; font-weight:600; cursor:pointer; }
+    .btn-primary { background: var(--brand); color:#fff; border-color: var(--brand); }
+
+    /* Bottom Navigation Styles */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; background-color: white; padding: 0.75rem 1rem; z-index: 10; max-width: 390px; margin: 0 auto; border-top: 1px solid #f0f0f0; }
+    .bottom-nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9ca3af; position:relative; text-decoration:none; }
+    .bottom-nav-item.active { color: var(--brand); }
+    .bottom-nav-text { font-size: 0.75rem; }
+    .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: var(--brand); }
+    .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 5px; background-color: #e5e7eb; z-index: 5; max-width: 390px; margin: 0 auto; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="header-inner">
+        <div class="title">Notifications</div>
+        <div class="actions">
+          <button id="clearBtn" class="clear-btn">Clear All</button>
+          <a href="notifications.html" class="notif" title="Alerts">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
+          </a>
+          <a href="settings.html" class="notif" title="Settings">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83 2.83l.06-.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77s 1.11.73 1.77.73H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="channels">
+      <div class="toggle"><input id="toggleEmail" type="checkbox"><label for="toggleEmail">Email</label></div>
+      <div class="toggle"><input id="toggleSms" type="checkbox"><label for="toggleSms">SMS</label></div>
+      <div class="toggle"><input id="toggleInApp" type="checkbox"><label for="toggleInApp">In‑App</label></div>
+    </div>
+
+    <div class="filters">
+      <div class="field">
+        <label class="label" for="severitySelect">Severity</label>
+        <select id="severitySelect">
+          <option value="All">All</option>
+          <option value="Success">Success</option>
+          <option value="Warning">Warning</option>
+          <option value="Critical">Critical</option>
+        </select>
+      </div>
+      <div class="field">
+        <label class="label" for="sortSelect">Sort</label>
+        <select id="sortSelect">
+          <option value="newest">Newest</option>
+          <option value="oldest">Oldest</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="notificationsContainer" class="content"></div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <a href="overview.html" class="bottom-nav-item" aria-label="Home">
+        <span class="bottom-nav-text">Home</span>
+      </a>
+      <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <span class="bottom-nav-text">Projects</span>
+      </a>
+      <a href="pal.html" class="bottom-nav-item" aria-label="PAO">
+        <span class="bottom-nav-text">PAO</span>
+      </a>
+      <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <span class="bottom-nav-text">Wallet</span>
+      </a>
+    </nav>
+    <div class="bottom-bar"></div>
+  </div>
+
+  <script>
+    const STORAGE = {
+      alerts: 'alertsData',
+      email: 'alertsEmail',
+      sms: 'alertsSms',
+      inapp: 'alertsInApp',
+      severity: 'alertsSeverity',
+      sort: 'alertsSort'
+    };
+
+    const defaultAlerts = [
+      { id: 'a-2001', title: 'Daily sales up 12%', severity: 'Success', time: '2025-10-20T09:20:00Z' },
+      { id: 'a-2002', title: 'Expense anomaly detected', severity: 'Warning', time: '2025-10-19T18:10:00Z' },
+      { id: 'a-2003', title: 'Payment failed for invoice #1024', severity: 'Critical', time: '2025-10-18T15:45:00Z' }
+    ];
+
+    function loadState() {
+      return {
+        alerts: JSON.parse(localStorage.getItem(STORAGE.alerts) || 'null') || defaultAlerts,
+        email: localStorage.getItem(STORAGE.email) === 'true',
+        sms: localStorage.getItem(STORAGE.sms) === 'true',
+        inapp: localStorage.getItem(STORAGE.inapp) !== 'false',
+        severity: localStorage.getItem(STORAGE.severity) || 'All',
+        sort: localStorage.getItem(STORAGE.sort) || 'newest'
+      };
+    }
+
+    function saveState(partial) {
+      const keys = Object.keys(partial);
+      keys.forEach(k => {
+        const v = partial[k];
+        if (k === 'alerts') localStorage.setItem(STORAGE.alerts, JSON.stringify(v));
+        else localStorage.setItem(STORAGE[k], String(v));
+      });
+    }
+
+    function renderAlerts() {
+      const state = loadState();
+      const container = document.getElementById('notificationsContainer');
+      container.innerHTML = '';
+
+      let list = state.alerts.filter(a => state.severity === 'All' ? true : a.severity === state.severity);
+      list.sort((a,b) => state.sort === 'newest' ? (new Date(b.time) - new Date(a.time)) : (new Date(a.time) - new Date(b.time)));
+
+      if (!list.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty';
+        empty.textContent = 'No alerts match your filters.';
+        container.appendChild(empty);
+        return;
+      }
+
+      list.forEach(a => {
+        const card = document.createElement('div');
+        card.className = 'card';
+        const pillClass = a.severity === 'Success' ? 'pill success' : a.severity === 'Warning' ? 'pill warning' : 'pill danger';
+        card.innerHTML = `
+          <div class="card-head">
+            <div>
+              <div style="font-weight:600">${a.title}</div>
+              <div class="meta">
+                <span class="${pillClass}">${a.severity}</span>
+                <span>${new Date(a.time).toLocaleString()}</span>
+              </div>
+            </div>
+            <span class="badge">Alert</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn-small" data-action="dismiss" data-id="${a.id}">Dismiss</button>
+            <button class="btn-small" data-action="snooze" data-id="${a.id}">Snooze</button>
+            <a class="btn-small" href="pal.html?context=${encodeURIComponent('alert:'+a.id)}">Send to PAL</a>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function bindUI() {
+      const severitySelect = document.getElementById('severitySelect');
+      const sortSelect = document.getElementById('sortSelect');
+      const toggleEmail = document.getElementById('toggleEmail');
+      const toggleSms = document.getElementById('toggleSms');
+      const toggleInApp = document.getElementById('toggleInApp');
+      const clearBtn = document.getElementById('clearBtn');
+
+      const state = loadState();
+      severitySelect.value = state.severity; sortSelect.value = state.sort;
+      toggleEmail.checked = state.email; toggleSms.checked = state.sms; toggleInApp.checked = state.inapp;
+
+      severitySelect.addEventListener('change', () => { saveState({ severity: severitySelect.value }); renderAlerts(); });
+      sortSelect.addEventListener('change', () => { saveState({ sort: sortSelect.value }); renderAlerts(); });
+      toggleEmail.addEventListener('change', () => saveState({ email: toggleEmail.checked }));
+      toggleSms.addEventListener('change', () => saveState({ sms: toggleSms.checked }));
+      toggleInApp.addEventListener('change', () => saveState({ inapp: toggleInApp.checked }));
+
+      document.getElementById('notificationsContainer').addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (!btn) return;
+        const id = btn.getAttribute('data-id');
+        const action = btn.getAttribute('data-action');
+        const state = loadState();
+        if (action === 'dismiss') {
+          const list = state.alerts.filter(x => x.id !== id);
+          saveState({ alerts: list });
+          renderAlerts();
+        } else if (action === 'snooze') {
+          alert(`Snoozed ${id} for 1 hour`);
+        }
+      });
+
+      clearBtn.addEventListener('click', () => {
+        saveState({ alerts: [] });
+        renderAlerts();
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderAlerts();
+      bindUI();
+    });
+  </script>
+</body>
+</html>
