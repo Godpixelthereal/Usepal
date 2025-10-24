@@ -117,7 +117,7 @@
   </style>
 </head>
 <body>
-  <script>try{const s=JSON.parse(localStorage.getItem('userSettings')||'{}'); if(s.theme !== 'light') document.documentElement.classList.add('dark');}catch(e){ document.documentElement.classList.add('dark'); }</script>
+  <script>document.documentElement.classList.add('dark');</script>
   <div class="app-container">
 
     <div class="menu-floating">
@@ -265,8 +265,8 @@
       <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
         <span class="bottom-nav-text">Projects</span>
       </a>
-      <a href="pal.html" class="bottom-nav-item active" aria-label="PAO">
-        <span class="bottom-nav-text">PAO</span>
+      <a href="pal.html" class="bottom-nav-item active" aria-label="PAL">
+        <span class="bottom-nav-text">PAL</span>
         <div class="bottom-nav-indicator"></div>
       </a>
       <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
@@ -364,16 +364,7 @@
         const img = document.createElement('img');
         img.alt = m.sender === 'user' ? 'User' : 'PAL';
         if (m.sender === 'user') {
-          img.src = '/images/user-avatar.jpg';
-          img.onerror = () => {
-            if (img.dataset.tryPng !== '1') {
-              img.dataset.tryPng = '1';
-              img.src = '/images/user-avatar.png';
-            } else {
-              img.remove();
-              avatar.innerHTML = '<span class="text-xl">👤</span>';
-            }
-          };
+          avatar.innerHTML = '<span class="text-xl">👤</span>';
         } else {
           img.src = '/images/pal-logo.svg';
           img.onerror = () => {

@@ -9,12 +9,13 @@
     body { background-color: #f8f9fa; margin: 0; padding: 0; }
     .app-container { max-width: 430px; margin: 0 auto; min-height: 100vh; background-color: white; position: relative; }
 
-    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; background-color: white; padding: 0.75rem 1rem; z-index: 10; max-width: 430px; margin: 0 auto; border-top: 1px solid #f0f0f0; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; justify-content: space-around; align-items: center; background-color: var(--card); padding: 0.75rem 1rem; z-index: 10; max-width: 430px; margin: 0 auto; border-top: 1px solid var(--border); }
     .bottom-nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9ca3af; position:relative; text-decoration:none; }
     .bottom-nav-item.active { color:#0066ff; }
     .bottom-nav-icon { margin-bottom: 0.25rem; height: 24px; }
     .bottom-nav-text { font-size: 0.75rem; }
     .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: #0066ff; }
+    .dark .bottom-nav { background-color: var(--card); border-top-color: var(--border); }
 
     .card { background-color: #ffffff; border-radius: 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.08); padding: 16px; }
     .section-title { font-weight: 700; font-size: 18px; color: #111827; }
@@ -24,6 +25,7 @@
   </style>
 </head>
 <body>
+  <script>document.documentElement.classList.add('dark');</script>
   <div class="app-container">
     <div class="p-4 pb-20">
       <div class="flex items-center justify-between mb-4">
@@ -89,8 +91,8 @@
       <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
         <span class="bottom-nav-text">Projects</span>
       </a>
-      <a href="pal.html" class="bottom-nav-item" aria-label="PAO">
-        <span class="bottom-nav-text">PAO</span>
+      <a href="pal.html" class="bottom-nav-item" aria-label="PAL">
+        <span class="bottom-nav-text">PAL</span>
       </a>
       <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
         <span class="bottom-nav-text">Wallet</span>
