@@ -61,6 +61,8 @@ body {
 
 .chat-container {
   @apply p-4 pb-24 overflow-y-auto h-screen-safe;
+  /* Push content below fixed top icons and safe area */
+  padding-top: calc(2.5rem + env(safe-area-inset-top, 0px));
 }
 
 .message {
@@ -121,4 +123,73 @@ body {
 
 .typing-indicator span:nth-child(3) {
   animation-delay: 0.4s;
+}
+
+/* Chat role-specific styles to match desired design */
+.user-message {
+  background-color: #ffffff;
+  color: #0f172a;
+  margin-left: auto;
+}
+.pal-message {
+  background: transparent;
+  color: #111827;
+  margin-right: auto;
+  padding: 0 !important;
+  box-shadow: none;
+}
+
+.action-button {
+  @apply bg-white text-primary border border-primary rounded-full px-4 py-2 text-sm font-medium mr-2 mb-2 inline-block;
+}
+
+.action-button:hover {
+  @apply bg-primary text-white;
+}
+
+.card {
+  @apply bg-white rounded-xl shadow-md p-4 mb-4;
+}
+
+.input-field {
+  @apply w-full border border-gray-light rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary;
+}
+
+.btn-primary {
+  @apply bg-primary text-white rounded-full px-6 py-2 font-medium;
+}
+
+.btn-secondary {
+  @apply bg-white text-primary border border-primary rounded-full px-6 py-2 font-medium;
+}
+
+.floating-button {
+  @apply fixed bottom-20 right-4 bg-primary text-white rounded-full w-14 h-14 flex items-center justify-center text-2xl shadow-lg z-40;
+}
+
+.slide-up {
+  @apply fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out;
+}
+
+.typing-indicator {
+  @apply flex space-x-1 p-2;
+}
+
+.typing-indicator span {
+  @apply w-2 h-2 bg-white rounded-full opacity-75 animate-pulse;
+}
+
+.typing-indicator span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Ensure SVG icons are sized and visible */
+.bottom-nav-icon svg {
+  width: 24px;
+  height: 24px;
+  stroke-width: 2.5;
 }

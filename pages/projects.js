@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { FiPlus } from 'react-icons/fi';
-import Layout from '../components/Layout';
 
 export default function Projects() {
   const [projects, setProjects] = useState([]);
@@ -18,7 +17,7 @@ export default function Projects() {
   }, []);
 
   return (
-    <Layout>
+    <>
       <div className="p-4 pb-20">
         <div className="flex items-center mb-2">
           <div className="flex-1">
@@ -76,6 +75,6 @@ export default function Projects() {
           <span className="font-bold">100</span>
         </div>
       </div>
-    </Layout>
+    </>
   );
 }

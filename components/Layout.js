@@ -14,7 +14,7 @@ const Layout = ({ children }) => {
 
       {/* Bottom Navigation */}
       <nav className="bottom-nav">
-        <Link href="/" className={`bottom-nav-item ${currentPath === '/' ? 'active' : ''}`}>
+        <Link href="/overview" className={`bottom-nav-item ${currentPath === '/overview' ? 'active' : ''}`}>
           <div className="bottom-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
@@ -22,7 +22,7 @@ const Layout = ({ children }) => {
             </svg>
           </div>
           <span className="bottom-nav-text">Home</span>
-          {currentPath === '/' && <div className="bottom-nav-indicator"></div>}
+          {currentPath === '/overview' && <div className="bottom-nav-indicator"></div>}
         </Link>
         
         <Link href="/projects" className={`bottom-nav-item ${currentPath === '/projects' ? 'active' : ''}`}>
@@ -36,25 +36,25 @@ const Layout = ({ children }) => {
           {currentPath === '/projects' && <div className="bottom-nav-indicator"></div>}
         </Link>
         
-        <Link href="/wallet" className={`bottom-nav-item ${currentPath === '/wallet' ? 'active' : ''}`}>
-          <div className="bottom-nav-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 7h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z" />
-              <path d="M16 12h4v4h-4z" />
-            </svg>
-          </div>
-          <span className="bottom-nav-text">Wallet</span>
-          {currentPath === '/wallet' && <div className="bottom-nav-indicator"></div>}
-        </Link>
-        
-        <Link href="/index" className={`bottom-nav-item ${currentPath === '/index' ? 'active' : ''}`}>
+        <Link href="/assistant" className={`bottom-nav-item ${currentPath === '/assistant' ? 'active' : ''}`}>
           <div className="bottom-nav-icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
             </svg>
           </div>
           <span className="bottom-nav-text">Pal</span>
-          {currentPath === '/index' && <div className="bottom-nav-indicator"></div>}
+          {currentPath === '/assistant' && <div className="bottom-nav-indicator"></div>}
+        </Link>
+        
+        <Link href="/wallet" className={`bottom-nav-item ${currentPath === '/wallet' ? 'active' : ''}`}>
+          <div className="bottom-nav-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+              <path d="M2 9h20"></path>
+            </svg>
+          </div>
+          <span className="bottom-nav-text">Wallet</span>
+          {currentPath === '/wallet' && <div className="bottom-nav-indicator"></div>}
         </Link>
       </nav>
     </div>

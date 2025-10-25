@@ -10,10 +10,11 @@
     .app-container { max-width: 430px; margin: 0 auto; height: 100vh; background-color: white; position: relative; overflow: hidden; }
     .status-bar { display:flex; justify-content:space-between; padding:5px 15px; font-size:12px; background-color:white; }
 
-    .chat-container { padding: 16px 16px 120px; height: calc(100vh - 120px); overflow-y: auto; }
+    /* Increase top padding so chat sits below top icons */
+    .chat-container { padding: 88px 16px 120px; height: calc(100vh - 120px); overflow-y: auto; }
     .message { max-width: 92%; margin-bottom: 16px; padding: 16px 18px; border-radius: 12px; font-size: 15px; line-height: 1.5; box-shadow: none; border: 1px solid rgba(0,0,0,0.04); }
     .user-message { margin-left: auto; background-color: #ffffff; color: #0f172a; }
-    .pal-message { margin-right: auto; background-color: #f7f7f8; color: #111827; }
+    .pal-message { margin-right: auto; background-color: transparent; color: #111827; border: none; padding: 0; box-shadow: none; }
 
     /* Rich content within messages */
     .message p { margin: 0 0 0.75rem; }
@@ -37,6 +38,8 @@
     .bottom-nav-item { display:flex; flex-direction:column; align-items:center; justify-content:center; color:#9ca3af; position:relative; text-decoration:none; }
     .bottom-nav-item.active { color:#0066ff; }
     .bottom-nav-icon { margin-bottom: 0.25rem; height: 24px; }
+    /* Ensure SVG icons are sized and visible */
+    .bottom-nav-icon svg { width: 24px; height: 24px; stroke-width: 2.5; }
     .bottom-nav-text { font-size: 0.75rem; }
     .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: #0066ff; }
 
@@ -46,8 +49,33 @@
     .top-action { width: 40px; height: 40px; border-radius: 9999px; background:white; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); color:#0f172a; }
     .dark .top-action { background:#111827; color:#e5e7eb; box-shadow:none; }
     .profile img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; display:block; }
-    .menu-floating { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 12px; width: 44px; height: 44px; border-radius: 9999px; background:#EAF6FF; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); z-index: 20; }
+    .menu-floating { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 12px); left: 12px; width: 44px; height: 44px; border-radius: 9999px; background:#EAF6FF; display:flex; align-items:center; justify-content:center; box-shadow: 0 4px 10px rgba(0,0,0,0.08); z-index: 20; cursor: pointer; transition: all 0.2s ease; color: #374151; }
+    .menu-floating:hover { background:#D1E7FF; transform: scale(1.05); }
+    .menu-floating:active { background:#B3D9FF; transform: scale(0.95); }
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 5px; background-color: #e5e7eb; z-index: 5; max-width: 430px; margin: 0 auto; }
+
+    /* Side menu and dropdown styles */
+    .menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 25; }
+    .side-menu { position: fixed; top: 0; bottom: 0; left: 0; width: 320px; max-width: 85vw; background: #1e293b; color: #e2e8f0; box-shadow: 8px 0 24px rgba(0,0,0,0.2); z-index: 30; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .side-menu .menu-header { display:flex; align-items:center; }
+    .menu-search-container { position: relative; width: 100%; }
+    .menu-search { width: 100%; border-radius: 9999px; padding: 10px 12px 10px 40px; border: none; outline: none; background: #334155; color: #e2e8f0; }
+    .menu-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; }
+    .menu-list { display:flex; flex-direction: column; gap: 8px; }
+    .menu-item { display:flex; align-items:center; gap: 10px; border-radius: 12px; padding: 10px 12px; background: #334155; color: #e2e8f0; text-align:left; border: none; cursor: pointer; text-decoration: none; }
+    .menu-item:hover { background: #475569; }
+    .menu-section-title { color: #94a3b8; font-size: 12px; margin-top: 6px; }
+    .menu-recent { display:flex; flex-direction:column; gap:8px; }
+    .menu-footer { margin-top: auto; display:flex; flex-direction: column; background:#334155; border-radius:12px; padding: 12px; }
+    .menu-credits { display:flex; align-items:center; justify-content:space-between; margin-bottom: 8px; color: #e2e8f0; }
+    .menu-upgrade { font-size: 12px; color: #94a3b8; text-align: center; cursor: pointer; }
+    .menu-upgrade:hover { color: #60a5fa; }
+
+    .dropdown-menu { position: fixed; top: calc(env(safe-area-inset-top, 0px) + 60px); right: 12px; width: 240px; background: #111827; color: #e5e7eb; border-radius: 14px; box-shadow: 0 8px 24px rgba(0,0,0,0.25); z-index: 25; padding: 8px; }
+    .dropdown-title { font-weight: 600; padding: 10px 12px; border-bottom: 1px solid #1f2937; margin-bottom: 6px; }
+    .dropdown-item { width: 100%; text-align: left; padding: 10px 12px; border-radius: 10px; background: transparent; color: inherit; }
+    .dropdown-item:hover { background: #1f2937; }
+    .dropdown-item.destructive { color: #f87171; }
 
     /* ChatGPT-like mobile UI adjustments */
     .message-row { display:flex; align-items:flex-end; gap:12px; margin-bottom: 12px; }
@@ -90,7 +118,7 @@
     .dark .status-bar { background-color:#0b1220; color:#e5e7eb; }
     .dark .chat-container { background-color:transparent; }
     .dark .message { border-color: rgba(255,255,255,0.08); }
-    .dark .pal-message { background-color:#2e2f35; color:#e5e7eb; }
+    .dark .pal-message { background-color: transparent; color:#e5e7eb; border: none; padding: 0; box-shadow: none; }
     .dark .user-message { background-color:#0b1220; color:#e5e7eb; }
     .dark .message a { color:#93c5fd; }
     .dark .message code { background: rgba(255,255,255,0.08); }
@@ -104,7 +132,9 @@
     .dark .bottom-bar { background-color:#1f2937; }
     .dark .points { background:#111827; color:#e5e7eb; box-shadow:none; }
     .dark .profile { background:#111827; }
-    .dark .menu-floating { background:#1f2937; color:#e5e7eb; }
+    .dark .menu-floating { background:#1f2937; color:#e5e7eb; border: 1px solid #374151; }
+    .dark .menu-floating:hover { background:#374151; border-color: #4b5563; transform: scale(1.05); }
+    .dark .menu-floating:active { background:#4b5563; border-color: #6b7280; transform: scale(0.95); }
     .dark .actions-sheet { background:#0b1220; box-shadow:none; }
     .dark .action-card { background:#111827; color:#e5e7eb; }
     .dark .action-card.dark { background:#0f172a; color:#fff; }
@@ -122,25 +152,94 @@
 
     <div class="menu-floating">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="5" y="7" width="14" height="2" rx="1" fill="#0f172a"/>
-        <rect x="5" y="11" width="14" height="2" rx="1" fill="#0f172a"/>
-        <rect x="5" y="15" width="14" height="2" rx="1" fill="#0f172a"/>
+        <rect x="5" y="7" width="14" height="2" rx="1" fill="currentColor"/>
+        <rect x="5" y="11" width="14" height="2" rx="1" fill="currentColor"/>
+        <rect x="5" y="15" width="14" height="2" rx="1" fill="currentColor"/>
       </svg>
     </div>
 
+    <!-- Left-side menu drawer and overlay -->
+    <div id="menuOverlay" class="menu-overlay hidden"></div>
+    <div id="sideMenu" class="side-menu hidden" aria-label="Main menu">
+      <div class="menu-header">
+        <div class="menu-search-container">
+          <svg class="menu-search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+            <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <input id="menuSearch" class="menu-search" type="search" placeholder="Search" />
+        </div>
+      </div>
+      <div class="menu-list">
+        <button class="menu-item" id="menuNewChat">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 4V20M4 12H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          New chat
+        </button>
+        <a class="menu-item" href="projects.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M6.5 2H20V22H6.5A2.5 2.5 0 0 1 4 19.5V4.5A2.5 2.5 0 0 1 6.5 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Library
+        </a>
+        <a class="menu-item" href="assistant.html">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+            <circle cx="9" cy="9" r="2" stroke="currentColor" stroke-width="2"/>
+            <path d="M21 15.5C21 15.5 18 12.5 15 12.5S9 15.5 9 15.5" stroke="currentColor" stroke-width="2"/>
+          </svg>
+          GPTs
+        </a>
+        <button class="menu-item" id="menuNewProject">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2H6A2 2 0 0 0 4 4V20A2 2 0 0 0 6 22H18A2 2 0 0 0 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="12" y1="18" x2="12" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <line x1="9" y1="15" x2="15" y2="15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          New project
+        </button>
+      </div>
+      <div class="menu-section">
+        <div class="menu-section-title">Recent chats</div>
+        <div id="recentChats" class="menu-recent"></div>
+      </div>
+      <div class="menu-footer">
+        <div class="menu-credits">
+          <span>Credits</span>
+          <span id="creditBalance">0</span>
+        </div>
+        <div class="menu-upgrade">Upgrade to Pro for more credits</div>
+      </div>
+    </div>
+
     <div class="top-actions" aria-label="Top actions">
-      <a href="notifications.html" class="top-action" title="Alerts" aria-label="Alerts">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2z"/>
-          <path d="M18 16v-5a6 6 0 1 0-12 0v5l-2 2h16l-2-2z" fill="none" stroke="currentColor" stroke-width="2"/>
+      <button type="button" id="newChatAction" class="top-action" title="New chat" aria-label="New chat">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 5a2 2 0 0 1 2-2h10l4 4v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5z" stroke="currentColor" stroke-width="2"/>
+          <path d="M9 15l6-6 2 2-6 6H9v-2z" fill="currentColor"/>
         </svg>
-      </a>
-      <a href="settings.html" class="top-action" title="Settings" aria-label="Settings">
+      </button>
+      <button type="button" id="menuAction" class="top-action" title="More" aria-label="More options">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 8 19.45a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 3.55 15 1.65 1.65 0 0 0 2 14h-.09a2 2 0 1 1 0-4H2a1.65 1.65 0 0 0 1.55-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 8 4.55 1.65 1.65 0 0 0 9 3h.09a2 2 0 1 1 4 0H13a1.65 1.65 0 0 0 1 1.55 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 20 8a1.65 1.65 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09A1.65 1.65 0 0 0 19.4 15z" fill="none" stroke="currentColor" stroke-width="2"/>
+          <circle cx="12" cy="6" r="2"/>
+          <circle cx="12" cy="12" r="2"/>
+          <circle cx="12" cy="18" r="2"/>
         </svg>
-      </a>
+      </button>
+    </div>
+
+    <!-- Top-right dropdown menu for chat options -->
+    <div id="chatMenu" class="dropdown-menu hidden" role="menu" aria-label="Chat options">
+      <div class="dropdown-title" id="chatMenuTitle">Untitled chat</div>
+      <button class="dropdown-item" data-action="share">Share</button>
+      <button class="dropdown-item" data-action="rename">Rename</button>
+      <button class="dropdown-item" data-action="add-to-project">Add to project</button>
+      <button class="dropdown-item" data-action="archive">Archive</button>
+      <button class="dropdown-item" data-action="delete">Delete</button>
+      <button class="dropdown-item destructive" data-action="report">Report</button>
     </div>
 
     <div id="chat" class="chat-container"></div>
@@ -260,16 +359,39 @@
 
     <nav class="bottom-nav">
       <a href="overview.html" class="bottom-nav-item" aria-label="Home">
+        <div class="bottom-nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Home</span>
       </a>
       <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <div class="bottom-nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM5 19V5H19V19H5Z" fill="currentColor"/>
+            <path d="M7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H14V17H7V15Z" fill="currentColor"/>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Projects</span>
       </a>
       <a href="pal.html" class="bottom-nav-item active" aria-label="PAL">
-        <span class="bottom-nav-text">PAL</span>
+        <div class="bottom-nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <span class="bottom-nav-text">Pal</span>
         <div class="bottom-nav-indicator"></div>
       </a>
       <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <div class="bottom-nav-icon">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <path d="M2 9h20"></path>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Wallet</span>
       </a>
     </nav>
@@ -359,25 +481,7 @@
         const row = document.createElement('div');
         row.className = `message-row ${m.sender === 'user' ? 'user' : 'pal'}`;
 
-        const avatar = document.createElement('div');
-        avatar.className = `avatar ${m.sender === 'user' ? 'user' : 'pal'}`;
-        const img = document.createElement('img');
-        img.alt = m.sender === 'user' ? 'User' : 'PAL';
-        if (m.sender === 'user') {
-          avatar.innerHTML = '<span class="text-xl">👤</span>';
-        } else {
-          img.src = '/images/pal-logo.svg';
-          img.onerror = () => {
-            if (img.dataset.tryPng !== '1') {
-              img.dataset.tryPng = '1';
-              img.src = '/images/pal-logo.png';
-            } else {
-              img.remove();
-              avatar.innerHTML = '<span class="text-xl">💬</span>';
-            }
-          };
-        }
-        avatar.appendChild(img);
+        // Avatars removed per design: no profile pictures in chat
 
         const bubble = document.createElement('div');
         bubble.className = `message ${m.sender === 'user' ? 'user-message' : 'pal-message'}`;
@@ -507,13 +611,11 @@
         time.textContent = m.time || formatTime();
 
         if (m.sender === 'pal') {
-          row.appendChild(avatar);
           row.appendChild(bubble);
           row.appendChild(time);
         } else {
           row.appendChild(bubble);
           row.appendChild(time);
-          row.appendChild(avatar);
         }
 
         chatEl.appendChild(row);
@@ -528,16 +630,96 @@
     }
     render(messages);
 
-    // Click-to-go-back when no document uploaded
-    let hasDoc = messages.some(m => (m.attachments || []).some(att => att.type === 'doc'));
-    const backOnClick = (e) => {
-      if (hasDoc) return;
-      if (e.target.closest('button, input, a, form, .actions-sheet, .composer-bar, .bottom-nav')) return;
-      window.history.back();
-    };
-    if (!hasDoc) {
-      document.addEventListener('click', backOnClick, true);
+    // Header menu and actions
+    const newChatBtn = document.getElementById('newChatAction');
+    const menuMoreBtn = document.getElementById('menuAction');
+    const dropdownEl = document.getElementById('chatMenu');
+    const burgerBtn = document.querySelector('.menu-floating');
+    const sideMenuEl = document.getElementById('sideMenu');
+    const menuOverlayEl = document.getElementById('menuOverlay');
+    const chatTitleEl = document.getElementById('chatMenuTitle');
+
+    let chatTitle = localStorage.getItem('chatTitle') || (messages[0]?.text ? messages[0].text.slice(0, 28) : 'Untitled chat');
+    chatTitleEl && (chatTitleEl.textContent = chatTitle);
+
+    // New chat clears conversation
+    newChatBtn?.addEventListener('click', () => {
+      localStorage.removeItem('palMessages');
+      messages = [{ id: Date.now(), sender: 'pal', text: `${greet()} I'm PAL, your AI business partner. Ask me anything.`, time: formatTime() }];
+      save(messages);
+      render(messages);
+    });
+
+    // Three-dot dropdown
+    menuMoreBtn?.addEventListener('click', () => dropdownEl?.classList.toggle('hidden'));
+    document.addEventListener('click', (e) => {
+      if (!dropdownEl || dropdownEl.classList.contains('hidden')) return;
+      if (e.target.closest('#chatMenu, #menuAction')) return;
+      dropdownEl.classList.add('hidden');
+    });
+
+    // Dropdown item actions
+    dropdownEl?.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item');
+      if (!item) return;
+      const action = item.dataset.action;
+      switch(action) {
+        case 'share':
+          if (navigator.share) {
+            navigator.share({ title: chatTitle, text: 'PAL chat', url: location.href }).catch(()=>{});
+          } else { alert('Sharing not supported on this device'); }
+          break;
+        case 'rename':
+          const name = prompt('Rename chat', chatTitle);
+          if (name) { chatTitle = name; localStorage.setItem('chatTitle', name); chatTitleEl && (chatTitleEl.textContent = name); }
+          break;
+        case 'add-to-project':
+          alert('Add to project coming soon.');
+          break;
+        case 'archive':
+          localStorage.setItem('palArchived', '1'); alert('Chat archived.');
+          break;
+        case 'delete':
+          if (confirm('Delete this chat?')) {
+            localStorage.removeItem('palMessages');
+            messages = [];
+            render(messages);
+            chatTitle = 'Untitled chat';
+            localStorage.setItem('chatTitle', chatTitle);
+            chatTitleEl && (chatTitleEl.textContent = chatTitle);
+          }
+          break;
+        case 'report':
+          alert('Thanks for your report. We will review.');
+          break;
+      }
+    });
+
+    // Side menu open/close
+    burgerBtn?.addEventListener('click', () => { sideMenuEl?.classList.remove('hidden'); menuOverlayEl?.classList.remove('hidden'); populateMenu(); });
+    menuOverlayEl?.addEventListener('click', () => { sideMenuEl?.classList.add('hidden'); menuOverlayEl?.classList.add('hidden'); });
+
+    // Populate sidebar: credits and recent chats
+    function populateMenu() {
+      const creditEl = document.getElementById('creditBalance');
+      if (creditEl) { creditEl.textContent = isUnlimited() ? '∞' : String(loadCredits()); }
+
+      const recentEl = document.getElementById('recentChats');
+      if (recentEl) {
+        recentEl.innerHTML = '';
+        const title = localStorage.getItem('chatTitle') || 'Untitled chat';
+        const item = document.createElement('button');
+        item.className = 'menu-item';
+        item.textContent = title;
+        item.addEventListener('click', () => { sideMenuEl.classList.add('hidden'); menuOverlayEl.classList.add('hidden'); });
+        recentEl.appendChild(item);
+      }
     }
+
+    document.getElementById('menuNewChat')?.addEventListener('click', () => newChatBtn?.click());
+    document.getElementById('menuNewProject')?.addEventListener('click', () => { alert('Create new project coming soon.'); });
+
+    // Negative-space back navigation disabled across screens
 
     // Actions sheet toggle
     toggleActionsBtn?.addEventListener('click', () => {
@@ -547,7 +729,7 @@
     // Upload handlers
     document.getElementById('action-docs')?.addEventListener('click', () => docInput.click());
     document.getElementById('action-photos')?.addEventListener('click', () => photoInput.click());
-    document.getElementById('action-camera')?.addEventListener('click', () => photoInput.click()); // uses capture
+    document.getElementById('action-camera')?.addEventListener('click', () => photoInput.click());
     document.getElementById('action-audio')?.addEventListener('click', () => audioInput.click());
 
     docInput?.addEventListener('change', () => {
@@ -558,9 +740,7 @@
       });
       render(messages); save(messages);
       actionsEl.classList.add('hidden');
-      // mark that a document has been uploaded and disable back-on-click behavior
-      hasDoc = true;
-      document.removeEventListener('click', backOnClick, true);
+      // Background-click back navigation is removed; no state toggle needed.
       localStorage.setItem('palHasDoc', '1');
       streamReply('Thanks, I have received your document. I will analyze it for profitability insights.');
     });

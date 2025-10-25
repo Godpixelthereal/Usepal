@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome • PAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --brand:#60a5fa; --bg:#0b1220; --text:#e5e7eb; --muted:#9ca3af; --card:#111827; --border:#1f2937; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin:0; font-family:'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); }
+    .app { max-width: 720px; margin: 0 auto; min-height: 100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 24px; }
+    .illustration { width: clamp(180px, 26vw, 260px); height: clamp(180px, 26vw, 260px); border-radius: 24px; background: linear-gradient(180deg, #1f2937 0%, #0b1220 100%); display:flex; align-items:center; justify-content:center; box-shadow: inset 0 0 0 1px var(--border); }
+    .card { background: var(--card); border:1px solid var(--border); border-radius: 16px; padding: 18px; width: 100%; margin-top: 20px; }
+    h1 { font-size: clamp(20px, 4.5vw, 28px); margin: 0 0 8px; }
+    p { margin: 0; color: var(--muted); font-size: clamp(13px, 2.8vw, 15px); }
+    .dots { display:flex; gap:6px; justify-content:center; margin: 16px 0; }
+    .dot { width:6px; height:6px; border-radius:999px; background:#334155; }
+    .dot.active { background: var(--brand); }
+    .cta-row { display:flex; align-items:center; gap:12px; margin-top: 16px; flex-wrap: wrap; }
+    .btn { padding: 10px 14px; border-radius: 12px; border:1px solid transparent; background: var(--brand); color:#0b1220; font-weight:600; cursor:pointer; min-height: 44px; }
+    .btn.secondary { background: var(--card); color: var(--text); border-color: var(--border); }
+    .btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .bottom-info { margin-top: 12px; font-size: 13px; color: var(--muted); text-align:center; }
+
+    /* Hero layout: center on small, two-column on medium+ */
+    .hero { display:grid; grid-template-columns: 1fr; gap: 16px; align-items:center; }
+    @media (min-width: 720px){ .hero { grid-template-columns: 1fr 1.2fr; } }
+    @media (max-width: 480px){
+      .app { padding: 16px; }
+      .cta-row { flex-direction: column; }
+      .btn, .btn.secondary { width: 100%; }
+    }
+    @media (prefers-reduced-motion: reduce){ .illustration { transition: none; } }
+  </style>
+</head>
+<body>
+  <script>document.documentElement.classList.add('dark');</script>
+  <div class="app">
+    <div class="hero">
+      <div class="illustration" aria-hidden="true">
+        <!-- Simple inline icon to avoid external assets -->
+        <svg width="120" height="120" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+          <path d="M9 7h6M9 11h6M9 15h6"></path>
+        </svg>
+      </div>
+      <div class="card">
+        <h1 id="welcomeTitle">Tailor‑Make Professional Invoices</h1>
+        <p id="welcomeSubtitle">Choose from customizable templates and create invoices that fit your business.</p>
+        <div class="dots" aria-hidden="true"><div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        <div class="cta-row">
+          <button id="getStarted" class="btn" aria-describedby="welcomeSubtitle">Get Started</button>
+          <button id="continueGoogle" class="btn secondary">Continue with Google</button>
+        </div>
+        <div class="bottom-info">Already have an account? <a href="#" id="signin" style="color:#93c5fd; text-decoration:none">Sign In →</a></div>
+      </div>
+    </div>
+  </div>
+  <script>
+    // Link to Sign Up for full onboarding; Google/Sign In go straight to app
+    document.getElementById('getStarted').addEventListener('click', function(){ window.location.href = 'signup.html'; });
+    document.getElementById('continueGoogle').addEventListener('click', function(){ localStorage.setItem('palOnboarded','true'); window.location.href = 'overview.html'; });
+    document.getElementById('signin').addEventListener('click', function(e){ e.preventDefault(); localStorage.setItem('palOnboarded','true'); window.location.href = 'overview.html'; });
+  </script>
+  <script src="js/devbar.js"></script>
+</body>
+</html>

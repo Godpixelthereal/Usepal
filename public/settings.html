@@ -28,15 +28,16 @@
     .saved-banner { position: fixed; top: 12px; left: 0; right: 0; margin: 0 auto; max-width: 390px; display:flex; justify-content:center; }
     .saved-banner > div { background:#E6F6FF; border: 1px solid #93C5FD; color:#0f172a; border-radius: 12px; padding: 6px 10px; font-size: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.08); }
 
-    /* Dark theme preview */
-    body.dark { background-color: #0b1220; }
-    body.dark .app-container { background-color: #0b1220; color: #e5e7eb; }
-    body.dark .card { background-color: #111827; color: #e5e7eb; }
-    body.dark .bottom-nav { background-color: #0b1220; border-top-color: #1f2937; }
-    body.dark .bottom-bar { background-color: #1f2937; }
+    /* Dark theme */
+    .dark body { background-color: #0b1220; }
+    .dark .app-container { background-color: #0b1220; color: #e5e7eb; }
+    .dark .card { background-color: #111827; color: #e5e7eb; }
+    .dark .bottom-nav { background-color: #111827; border-top-color: #1f2937; }
+    .dark .bottom-bar { background-color: #1f2937; }
   </style>
 </head>
 <body>
+  <script>document.documentElement.classList.add('dark'); document.body.classList.add('dark');</script>
   <div class="app-container">
     <div class="p-4 pb-20">
       <div class="flex items-center justify-between">
@@ -89,9 +90,18 @@
         <!-- Theme -->
         <div class="card">
           <div class="section-title mb-3">Theme</div>
-          <div class="flex gap-3">
-            <button id="themeLight" class="px-3 py-2 rounded bg-gray-200">Light</button>
-            <button id="themeDark" class="px-3 py-2 rounded bg-gray-900 text-white">Dark</button>
+          <div class="text-gray-500 text-sm">Dark mode is always enabled.</div>
+        </div>
+
+        <!-- Onboarding -->
+        <div class="card">
+          <div class="section-title mb-3">Onboarding</div>
+          <div class="flex items-center justify-between py-2">
+            <div>
+              <div class="font-medium">Restart Tour</div>
+              <div class="text-gray-500 text-sm">Replay the guided tour on Overview.</div>
+            </div>
+            <button id="restartTour" class="px-3 py-2 rounded bg-blue-600 text-white">Restart</button>
           </div>
         </div>
 
@@ -112,16 +122,40 @@
 
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
-      <a href="overview.html" class="bottom-nav-item" aria-label="Home">
+      <a href="overview.html" class="bottom-nav-item active" aria-label="Home">
+        <div class="bottom-nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Home</span>
+        <div class="bottom-nav-indicator"></div>
       </a>
       <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <div class="bottom-nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM5 19V5H19V19H5Z" fill="currentColor"/>
+            <path d="M7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H14V17H7V15Z" fill="currentColor"/>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Projects</span>
       </a>
       <a href="pal.html" class="bottom-nav-item" aria-label="PAL">
-        <span class="bottom-nav-text">PAL</span>
+        <div class="bottom-nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <span class="bottom-nav-text">Pal</span>
       </a>
       <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <div class="bottom-nav-icon">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <path d="M2 9h20"></path>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Wallet</span>
       </a>
     </nav>
@@ -137,7 +171,7 @@
       setTimeout(() => holder.remove(), 1200);
     };
 
-    const defaultSettings = { notifications: true, smartAlerts: true, currency: 'USD', theme: 'light' };
+    const defaultSettings = { notifications: true, smartAlerts: true, currency: 'USD', theme: 'dark' };
     function loadSettings(){
       try { return JSON.parse(localStorage.getItem('userSettings')||'null') || defaultSettings; }
       catch(e){ return defaultSettings; }
@@ -147,7 +181,7 @@
     const settings = loadSettings();
 
     // Apply theme immediately
-    if (settings.theme === 'dark') document.documentElement.classList.add('dark');
+    if (settings.theme === 'dark') { document.documentElement.classList.add('dark'); document.body.classList.add('dark'); }
 
     // Populate UI
     document.getElementById('toggleNotifications').classList.toggle('on', !!settings.notifications);
@@ -170,16 +204,9 @@
       saveSettings(settings);
     });
 
-    document.getElementById('themeLight').addEventListener('click', ()=>{
-      settings.theme = 'light';
-      document.documentElement.classList.remove('dark');
-      saveSettings(settings);
-    });
-    document.getElementById('themeDark').addEventListener('click', ()=>{
-      settings.theme = 'dark';
-      document.documentElement.classList.add('dark');
-      saveSettings(settings);
-    });
+    // Restart guided tour
+    const rt = document.getElementById('restartTour');
+    if(rt){ rt.addEventListener('click', ()=>{ try{ localStorage.removeItem('palTourTaken'); saveBanner(); }catch(e){} }); }
 
     // Profile demo from stored business
     const bd = JSON.parse(localStorage.getItem('businessData')||'{}');
@@ -192,5 +219,6 @@
     document.getElementById('creditsPlan').textContent = unlimited ? 'Unlimited' : 'Free';
     document.getElementById('creditsBalance').textContent = unlimited ? '∞' : String(c);
   </script>
+  <script src="js/devbar.js"></script>
 </body>
 </html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign Up • PAL</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --brand:#60a5fa; --bg:#0b1220; --text:#e5e7eb; --muted:#9ca3af; --card:#111827; --border:#1f2937; --error:#ef4444; --success:#10b981; }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body { margin:0; font-family:'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); }
+    .container { max-width: 420px; margin: 0 auto; min-height: 100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding: 24px; }
+    .logo { display:flex; align-items:center; gap:8px; margin-bottom: 16px; color:#93c5fd; }
+    .card { background: var(--card); border:1px solid var(--border); border-radius: 16px; padding: 18px; width: 100%; }
+    h1 { font-size: clamp(18px, 4vw, 22px); margin: 0 0 8px; }
+    p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+    .grid { display:grid; grid-template-columns: 1fr 1fr; gap:12px; }
+    .row { display:grid; grid-template-columns: 1fr; gap:12px; }
+    .field { display:flex; flex-direction:column; gap:8px; }
+    label { font-size: 13px; color: var(--muted); }
+    input { padding: 10px 12px; border-radius: 10px; border:1px solid var(--border); background:#0b1220; color: var(--text); outline:none; width: 100%; }
+    input::placeholder { color:#6b7280; }
+    .hint { font-size: 12px; color: var(--muted); }
+    .strength { display:flex; gap:4px; margin-top:6px; }
+    .strength div { flex:1; height:6px; border-radius:6px; background:#334155; }
+    .strength div.active { background: var(--brand); }
+    .actions { display:flex; flex-wrap: wrap; gap:10px; margin-top: 14px; }
+    .btn { padding: 10px 14px; border-radius: 12px; border:1px solid transparent; background: var(--brand); color: #0b1220; font-weight:600; cursor:pointer; min-height: 44px; }
+    .btn.secondary { background: var(--card); color: var(--text); border-color: var(--border); }
+    .btn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .footer { margin-top: 12px; font-size: 13px; color: var(--muted); text-align:center; }
+    .error { color: var(--error); font-size: 13px; margin-top: 6px; }
+
+    @media (max-width: 520px){
+      .grid { grid-template-columns: 1fr; }
+      .container { padding: 16px; }
+      .actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <script>document.documentElement.classList.add('dark');</script>
+  <div class="container">
+    <div class="logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#93c5fd" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="5" y="3" width="14" height="18" rx="2"></rect>
+        <path d="M9 7h6M9 11h6M9 15h6"></path>
+      </svg>
+      <strong>PAL</strong>
+    </div>
+    <div class="card">
+      <h1>Create your account</h1>
+      <p>Set up your workspace to start tracking invoices and KPIs.</p>
+      <form id="signupForm" novalidate>
+        <div class="grid">
+          <div class="field">
+            <label for="firstName">First name</label>
+            <input id="firstName" name="firstName" type="text" placeholder="Ada" autocomplete="given-name" required />
+          </div>
+          <div class="field">
+            <label for="lastName">Last name</label>
+            <input id="lastName" name="lastName" type="text" placeholder="Lovelace" autocomplete="family-name" required />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="you@company.com" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="company">Company</label>
+            <input id="company" name="company" type="text" placeholder="Acme Corp" autocomplete="organization" />
+          </div>
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" placeholder="••••••••" autocomplete="new-password" required />
+            <div class="strength" aria-hidden="true">
+              <div id="s1"></div><div id="s2"></div><div id="s3"></div><div id="s4"></div>
+            </div>
+            <div id="pwdHint" class="hint">Use 8+ characters, with numbers and symbols.</div>
+          </div>
+        </div>
+        <div id="formError" class="error" style="display:none"></div>
+        <div class="actions">
+          <button type="submit" class="btn">Sign Up</button>
+          <button type="button" id="signupGoogle" class="btn secondary">Continue with Google</button>
+        </div>
+      </form>
+      <div class="footer">Already have an account? <a href="#" id="signin" style="color:#93c5fd; text-decoration:none">Sign In →</a></div>
+    </div>
+  </div>
+  <script>
+    // ensure next button focus for accessibility on small screens if needed
+    document.addEventListener('DOMContentLoaded', ()=>{
+      const first = document.getElementById('firstName');
+      try { first && first.focus(); } catch(e){}
+    });
+    function passwordStrength(p){
+      let score = 0;
+      if(!p) return 0;
+      if(p.length >= 8) score++;
+      if(/[0-9]/.test(p)) score++;
+      if(/[a-zA-Z]/.test(p)) score++;
+      if(/[^\w]/.test(p)) score++;
+      return Math.min(score,4);
+    }
+    function updateStrength(n){
+      ['s1','s2','s3','s4'].forEach((id, idx)=>{
+        const el = document.getElementById(id);
+        if(el) el.classList.toggle('active', idx < n);
+      });
+      const hint = document.getElementById('pwdHint');
+      if(hint){ hint.textContent = n>=3 ? 'Strong enough' : 'Use 8+ chars, with numbers and symbols.'; }
+    }
+    document.getElementById('password').addEventListener('input', (e)=>{
+      updateStrength(passwordStrength(e.target.value));
+    });
+
+    function setOnboardedAndGo(){
+      try { localStorage.setItem('palOnboarded','true'); } catch(e){}
+      window.location.href = 'overview.html';
+    }
+    function captureProfile(){
+      const profile = {
+        firstName: document.getElementById('firstName').value.trim(),
+        lastName: document.getElementById('lastName').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        company: document.getElementById('company').value.trim()
+      };
+      try { localStorage.setItem('userProfile', JSON.stringify(profile)); } catch(e){}
+    }
+    document.getElementById('signupForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const fn = document.getElementById('firstName').value.trim();
+      const ln = document.getElementById('lastName').value.trim();
+      const em = document.getElementById('email').value.trim();
+      const pw = document.getElementById('password').value;
+      const errEl = document.getElementById('formError');
+      errEl.style.display = 'none'; errEl.textContent = '';
+      const mailOk = /.+@.+\..+/.test(em);
+      const strength = passwordStrength(pw);
+      if(!fn || !ln || !mailOk || strength < 3){
+        errEl.textContent = 'Please complete all fields and use a stronger password.';
+        errEl.style.display = 'block';
+        return;
+      }
+      captureProfile();
+      setOnboardedAndGo();
+    });
+    document.getElementById('signupGoogle').addEventListener('click', ()=>{
+      captureProfile();
+      setOnboardedAndGo();
+    });
+    document.getElementById('signin').addEventListener('click', (e)=>{
+      e.preventDefault();
+      try { localStorage.setItem('palOnboarded','true'); } catch(e){}
+      window.location.href = 'overview.html';
+    });
+  </script>
+  <script src="js/devbar.js"></script>
+</body>
+</html>

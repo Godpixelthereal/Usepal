@@ -14,7 +14,7 @@
     html, body { height: 100%; }
     body { margin:0; font-family:'Inter', system-ui, -apple-system, sans-serif; background-color: var(--bg); color: var(--text); }
     .app { max-width: 390px; margin: 0 auto; min-height: 100%; position: relative; padding-bottom: 84px; }
-    .header { position: sticky; top:0; background: var(--bg); border-bottom:1px solid var(--border); z-index: 20; }
+    .header { position: sticky; top:0; background: var(--bg); border-bottom:1px solid var(--border); z-index: 60; }
     .header-inner { display:flex; align-items:center; justify-content:space-between; padding: 0.75rem 1rem; }
     .title { font-weight: 700; font-size: 1.1rem; }
 
@@ -38,9 +38,53 @@
     .hero-chart { position:absolute; left:0; right:0; bottom:0; height:140px; }
     .hero-chart canvas { width:100%; height:100%; }
     .hero svg { position:absolute; right:-20px; bottom:-10px; width:280px; height:140px; opacity:0.45; }
-.badge svg { width:16px; height:16px; }
+    .badge svg { width:16px; height:16px; }
 
-    /* Stats grid */
+    /* Add hamburger button and side-menu styles */
+    .menu-floating { width:36px; height:36px; border-radius:9999px; background:#EAF6FF; display:flex; align-items:center; justify-content:center; border:1px solid #e5e7eb; color:#374151; cursor:pointer; }
+    .dark .menu-floating { background:#1f2937; color:#e5e7eb; border-color:#374151; }
+    .menu-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 100; display:none; }
+    .menu-overlay.visible { display:block; }
+    .side-menu { position: fixed; top: 0; bottom: 0; left: 0; width: 320px; max-width: 85vw; background: #1e293b; color: #e2e8f0; box-shadow: 8px 0 24px rgba(0,0,0,0.35); z-index: 110; padding: 16px; display:none; flex-direction: column; gap: 12px; transform: translateX(-100%); transition: transform 0.25s ease; }
+    .side-menu.open { transform: translateX(0); }
+    .side-menu .menu-header { display:flex; align-items:center; gap:10px; }
+    .side-menu .avatar { width:44px; height:44px; border-radius:50%; background:#334155; display:flex; align-items:center; justify-content:center; font-weight:700; }
+    .menu-section-title { color: #94a3b8; font-size: 12px; margin-top: 6px; }
+    .menu-list { display:flex; flex-direction: column; gap: 8px; }
+    .menu-item { display:flex; align-items:center; gap: 10px; border-radius: 12px; padding: 10px 12px; background: #334155; color: #e2e8f0; text-align:left; border: none; cursor: pointer; text-decoration: none; }
+    .menu-item:hover { background: #475569; }
+    /* Responsive and scalable submenu styles */
+    .side-menu { overflow-y: auto; }
+    .submenu { display: none; margin-left: 36px; padding-left: 8px; border-left: 1px solid #475569; }
+    .submenu.open { display: flex; flex-direction: column; }
+    .submenu-link { display: block; padding: 8px 10px; color: #e2e8f0; text-decoration: none; border-radius: 8px; }
+    .submenu-link:hover, .submenu-link:focus { background: #475569; outline: none; }
+    @media (max-width: 640px) {
+      .menu-item { padding: 12px 14px; }
+      .submenu { margin-left: 28px; }
+    }
+    /* Harmonized legacy submenu styles */
+     .submenu.open { gap:6px; padding-left:34px; }
+     .submenu-link { display:flex; align-items:center; gap:8px; border-radius:10px; padding:8px 10px; background:#2f3d4f; color:#e2e8f0; text-decoration:none; }
+    .submenu-link:hover { background:#3b4b60; }
+
+    /* Quick Create styles */
+    .quick-actions { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin-top:10px; }
+    .qa-item { display:flex; flex-direction:column; align-items:center; gap:8px; padding:10px; border:1px solid var(--border); border-radius:12px; background:var(--card); color:var(--text); cursor:pointer; }
+    .qa-icon { width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; background:#eef2ff; color:#1d4ed8; }
+    .qa-label { font-size:0.8rem; color:var(--muted); }
+
+    /* Onboarding overlay styles */
+    .onboard-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 40; display:none; }
+    .onboard-card { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, 92vw); background: #111827; color:#e5e7eb; border:1px solid #1f2937; border-radius: 12px; padding: 14px; z-index: 50; display:none; }
+    .onboard-title { margin: 0 0 8px; font-size: 18px; font-weight:700; }
+    .onboard-sub { margin: 0 0 10px; color:#9ca3af; }
+    .onboard-list { display:flex; flex-direction:column; gap:8px; }
+    .onboard-row { display:flex; align-items:center; gap:10px; background:#1f2937; border-radius:10px; padding:10px; }
+    .onboard-row input { width:18px; height:18px; }
+    .onboard-actions { display:flex; gap:8px; margin-top:12px; }
+    .onboard-btn { padding:8px 12px; border-radius:8px; border:1px solid #374151; background:#1f2937; color:#e5e7eb; cursor:pointer; }
+    .onboard-btn.primary { background:#60a5fa; color:#0b1220; border-color:transparent; font-weight:600; }
     .grid { display:grid; grid-template-columns: 1fr 1fr; gap:0.75rem; }
     .card { background: var(--card); border:1px solid var(--border); border-radius: 16px; padding: 0.75rem; box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
     .stat { display:flex; flex-direction:column; gap:6px; }
@@ -48,6 +92,22 @@
     .label { color:var(--muted); font-size:0.85rem; }
     .kpi { font-weight:800; font-size:1.25rem; }
     .updated { margin-top:2px; color:#9ca3af; font-size:0.7rem; }
+
+    /* Toggle link button */
+    .link-btn { font-size:0.8rem; color:var(--brand); background:transparent; border:none; padding:4px 8px; cursor:pointer; }
+    .link-btn:hover { text-decoration:underline; }
+
+    /* KPI Tiles */
+    .tile-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:0.75rem; }
+    @media (min-width: 900px){ .tile-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 480px){ .tile-grid { grid-template-columns: repeat(3, 1fr); } }
+    .tile { background: var(--card); border:1px solid var(--border); border-radius:16px; padding:12px; display:flex; flex-direction:column; aspect-ratio: 1 / 1; }
+    .tile-title { color: var(--muted); font-size: 0.85rem; }
+    .tile-value { font-weight:800; font-size:1.25rem; margin-top:4px; }
+    .tile-updated { margin-top:auto; color:#9ca3af; font-size:0.7rem; }
+    .dark .tile { background: var(--card); border-color: var(--border); }
+    .dark .tile-title { color: var(--muted); }
+    .dark .tile-updated { color:#6b7280; }
 
     /* List and sections */
     .list { margin-top:0.75rem; }
@@ -65,6 +125,8 @@
     .bottom-nav-indicator { position: absolute; bottom: -12px; left: 0; right: 0; margin: 0 auto; width: 24px; height: 2px; background-color: var(--brand); }
     .bottom-bar { position: fixed; bottom: 0; left: 0; right: 0; height: 5px; background-color: #e5e7eb; z-index: 5; max-width: 390px; margin: 0 auto; }
     .nav-badge { position:absolute; top:-4px; right:-6px; width:8px; height:8px; border-radius:999px; background: var(--brand); }
+    .bottom-nav-icon { margin-bottom: 0.25rem; height: 24px; }
+    .bottom-nav-icon svg { width: 24px; height: 24px; stroke-width: 2.5; }
  
     /* Dark mode variables and overrides */
     .dark { --brand:#60a5fa; --bg:#0b1220; --text:#e5e7eb; --muted:#9ca3af; --card:#111827; --border:#1f2937; --success:#10b981; }
@@ -108,6 +170,20 @@
     .bottom-nav, .bottom-bar { max-width: 390px; }
     @media (min-width: 640px){ .bottom-nav, .bottom-bar { max-width: 640px; } }
     @media (min-width: 860px){ .bottom-nav, .bottom-bar { max-width: 900px; } }
+
+    /* Tour styles */
+    .tour-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(1px); z-index: 40; display:none; }
+    .tour-card { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(560px, 92vw); background: #111827; color:#e5e7eb; border:1px solid #1f2937; border-radius: 12px; padding: 14px; z-index: 50; display:none; }
+    .tour-card h2 { margin: 0 0 6px; font-size: 18px; }
+    .tour-card p { margin: 0; color: #9ca3af; font-size: 14px; }
+    .tour-actions { display:flex; gap: 8px; margin-top: 12px; }
+    .tour-btn { padding: 8px 12px; border-radius: 8px; border: 1px solid #374151; background:#1f2937; color:#e5e7eb; cursor:pointer; }
+    .tour-btn.primary { background:#60a5fa; color:#0b1220; border-color: transparent; font-weight:600; }
+    @media (max-width: 480px){
+      .tour-card { top: auto; bottom: 16px; width: 94vw; left: 50%; transform: translateX(-50%); }
+      .tour-actions { flex-wrap: wrap; }
+      #tourBack, #tourNext, #tourSkip { flex: 1 1 auto; min-height: 40px; }
+    }
   </style>
 </head>
 <body>
@@ -115,24 +191,121 @@
   <div class="app">
     <div class="header">
       <div class="header-inner">
-        <div class="profile">
-          <div class="avatar">P</div>
-          <div class="welcome">
-            <small>Welcome back!</small>
-            <strong id="bizName">PAL Business Partner</strong>
-          </div>
+        <button id="homeMenuBtn" class="menu-floating" title="Open menu" aria-label="Open menu">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h18M3 12h18M3 17h18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+        <div class="welcome">
+          <small>Home</small>
+          <strong id="bizName">PAL Business Partner</strong>
         </div>
         <div class="actions">
           <a href="notifications.html" class="notif" title="Alerts">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 01-3.46 0"></path></svg>
           </a>
           <a href="settings.html" class="notif" title="Settings">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77s1.11.73 1.77.73H21a2 2 0 0 1 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1 1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l-.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77s1.11.73 1.77.73H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
           </a>
         </div>
-
       </div>
     </div>
+
+    <div id="homeMenuOverlay" class="menu-overlay" aria-hidden="true"></div>
+    <aside id="homeSideMenu" class="side-menu" aria-label="Main menu">
+      <div class="menu-header" style="gap:12px">
+        <div class="avatar" style="width:56px;height:56px">PB</div>
+        <div>
+          <div style="font-weight:700">PAL Business Partner <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;margin-left:4px"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+          <div style="color:#94a3b8;font-size:12px">pal@example.com</div>
+        </div>
+      </div>
+      <hr style="border-color:#374151"/>
+      <div class="menu-list">
+        <a class="menu-item active" href="overview.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          <span>Home</span>
+        </a>
+        <a class="menu-item" href="#">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v20H6z"></path><path d="M10 6h4"></path><path d="M10 10h4"></path><path d="M10 14h4"></path></svg>
+          <span>Items</span>
+        </a>
+        <a class="menu-item" href="#">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><path d="M9 22V12h6v10"></path></svg>
+          <span>Banking</span>
+        </a>
+        <a id="menuSalesBtn" class="menu-item menu-toggle" href="#" aria-expanded="false" aria-controls="submenuSales">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h12v12H6z"></path><path d="M9 9h6v6H9z"></path></svg>
+          <span>Sales</span>
+          <svg class="menu-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+        <div id="submenuSales" class="submenu" aria-hidden="true">
+          <a class="submenu-link" href="#">Customers</a>
+          <a class="submenu-link" href="#">Quotes</a>
+          <a class="submenu-link" href="#">Retainer Invoices</a>
+          <a class="submenu-link" href="#">Sales Orders</a>
+          <a class="submenu-link" href="#">Invoices</a>
+          <a class="submenu-link" href="#">Sales Receipts</a>
+          <a class="submenu-link" href="#">Payment Links</a>
+          <a class="submenu-link" href="#">Payments Received</a>
+          <a class="submenu-link" href="#">Recurring Invoices</a>
+          <a class="submenu-link" href="#">Credit Notes</a>
+        </div>
+        <a id="menuPurchasesBtn" class="menu-item menu-toggle" href="#" aria-expanded="false" aria-controls="submenuPurchases">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6h12v12H6z"></path><path d="M8 12h8"></path></svg>
+          <span>Purchases</span>
+          <svg class="menu-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+        <div id="submenuPurchases" class="submenu" aria-hidden="true">
+           <a class="submenu-link" href="#">Vendors</a>
+           <a class="submenu-link" href="#">Expenses</a>
+           <a class="submenu-link" href="#">Purchase Orders</a>
+           <a class="submenu-link" href="#">Bills</a>
+           <a class="submenu-link" href="#">Payments Made</a>
+           <a class="submenu-link" href="#">Vendor Credits</a>
+         </div>
+        <a id="menuTimeBtn" class="menu-item menu-toggle" href="#" aria-expanded="false" aria-controls="submenuTime">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M12 6v6l4 2"></path></svg>
+          <span>Time Tracking</span>
+          <svg class="menu-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+        <div id="submenuTime" class="submenu" aria-hidden="true">
+           <a class="submenu-link" href="#">Projects</a>
+           <a class="submenu-link" href="#">Time Entries</a>
+           <a class="submenu-link" href="#">Timer</a>
+         </div>
+        <a id="menuAccountantBtn" class="menu-item menu-toggle" href="#" aria-expanded="false" aria-controls="submenuAccountant">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path></svg>
+          <span>Accountant</span>
+          <svg class="menu-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+        <div id="submenuAccountant" class="submenu" aria-hidden="true">
+           <a class="submenu-link" href="#">Manual Journals</a>
+         </div>
+        <a id="menuDocsBtn" class="menu-item menu-toggle" href="#" aria-expanded="false" aria-controls="submenuDocs">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7h18v12H3z"></path><path d="M7 11h10"></path></svg>
+          <span>Documents</span>
+          <svg class="menu-caret" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 10l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </a>
+        <div id="submenuDocs" class="submenu" aria-hidden="true">
+           <a class="submenu-link" href="#">Inbox</a>
+           <a class="submenu-link" href="#">All Files</a>
+           <a class="submenu-link" href="#">Folders</a>
+         </div>
+        <a class="menu-item" href="reports.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v18H3z"></path><path d="M7 17v-6"></path><path d="M12 17v-10"></path><path d="M17 17v-3"></path></svg>
+          <span>Reports</span>
+        </a>
+        <a class="menu-item" href="settings.html">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1 1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06"></path></svg>
+          <span>Settings</span>
+        </a>
+      </div>
+      <div class="menu-footer" style="margin-top:auto;background:#334155;border-radius:12px;padding:12px">
+        <div class="menu-credits" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;color:#e2e8f0">
+          <span>Credits</span><strong id="creditBalance">∞</strong>
+        </div>
+        <div class="menu-upgrade" style="font-size:12px;color:#94a3b8;text-align:center;cursor:pointer">Upgrade to Pro</div>
+      </div>
+    </aside>
 
     <div class="content">
       <!-- Hero summary -->
@@ -140,71 +313,126 @@
         <h3>Profit amount</h3>
         <div class="amount" id="heroProfit">$0</div>
         <div class="chip"><span class="dot"></span><span id="heroDelta">+0%</span><span>From the previous week</span></div>
-        <!-- curve removed to use the infographic sparkline -->
-        <!-- infographic sparkline -->
         <div class="hero-chart"><canvas id="profitChart"></canvas></div>
       </div>
 
-      <!-- Stats grid like sample -->
-      <div class="grid" style="margin-top:0.75rem">
-        <div class="card stat">
-          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2"></rect><path d="M6 10h12M10 6v12"></path></svg></div>
-          <div class="label">Total Products</div>
-          <div class="kpi" id="totalProducts">0</div>
-          <div class="updated" id="productsUpdated">Updated: Today</div>
+      <!-- Quick Create -->
+      <div class="card" style="margin-top:0.75rem">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div class="label">Quick Create</div>
         </div>
-        <div class="card stat">
-          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h6l6 6-6 6H7a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2z"></path><circle cx="9" cy="11" r="1"></circle></svg></div>
-          <div class="label">Product Category</div>
-          <div class="kpi" id="productCategory">0</div>
-          <div class="updated" id="categoryUpdated">Updated: Today</div>
-        </div>
-        <div class="card stat">
-          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"></rect><path d="M9 7h6M9 11h6M9 15h6"></path></svg></div>
-          <div class="label">Total Sold</div>
-          <div class="kpi" id="totalSold">0</div>
-          <div class="updated" id="soldUpdated">Updated: Today</div>
-        </div>
-        <div class="card stat">
-          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"></rect><path d="M8 16v-6l8 3v6"></path></svg></div>
-          <div class="label">Monthly Income</div>
-          <div class="kpi" id="monthlyIncome">$0</div>
-          <div class="updated" id="incomeUpdated">Updated: Today</div>
+        <div id="quickCreate" class="quick-actions">
+          <div class="qa-item" data-action="new-customer" title="New Customer">
+            <div class="qa-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"></path></svg>
+            </div>
+            <div class="qa-label">New Customer</div>
+          </div>
+          <div class="qa-item" data-action="new-invoice" title="New Invoice">
+            <div class="qa-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16l4-2 4 2 4-2 4 2V8l-6-6z"></path><path d="M14 2v6h6"></path><path d="M8 10h8"></path><path d="M8 14h8"></path></svg>
+            </div>
+            <div class="qa-label">New Invoice</div>
+          </div>
+          <div class="qa-item" data-action="new-bill" title="New Bill">
+            <div class="qa-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"></rect><path d="M9 8h6"></path><path d="M9 12h6"></path><path d="M9 16h6"></path></svg>
+            </div>
+            <div class="qa-label">New Bill</div>
+          </div>
+          <div class="qa-item" data-action="new-expense" title="New Expense">
+            <div class="qa-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="M7 10l5-5 5 5"></path><path d="M12 5v13"></path></svg>
+            </div>
+            <div class="qa-label">New Expense</div>
+          </div>
         </div>
       </div>
 
-      <!-- Additional KPIs -->
-      <div class="grid" style="margin-top:0.75rem">
-        <div class="card stat">
-          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3z"/><path d="M8 13c-2.67 0-8 1.34-8 4v3h16v-3c0-2.66-5.33-4-8-4z"/></svg></div>
-          <div class="label">Customers</div>
-          <div class="kpi" id="totalCustomers">0</div>
-          <div class="updated" id="customersUpdated">Updated: Today</div>
+      <!-- Announcements -->
+      <!-- Announcements moved below KPI tiles -->
+
+      <!-- KPI Tiles: top 3 -->
+      <div class="tile-grid" style="margin-top:0.75rem">
+        <div class="tile">
+          <div class="tile-title">Total Products</div>
+          <div id="totalProducts" class="tile-value">–</div>
+          <div id="totalProductsUpdated" class="tile-updated">Updated –</div>
         </div>
-        <div class="card stat">
-          <div class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h18v4H3z"/><path d="M7 7v14"/><path d="M17 7v14"/></svg></div>
-          <div class="label">New Orders</div>
-          <div class="kpi" id="newOrders">0</div>
-          <div class="updated" id="ordersUpdated">Updated: Today</div>
+        <div class="tile">
+          <div class="tile-title">Product Category</div>
+          <div id="productCategory" class="tile-value">–</div>
+          <div id="productCategoryUpdated" class="tile-updated">Updated –</div>
         </div>
-        <div class="card stat">
-          <div class="badge" style="background:#eef2ff; color:#1d4ed8"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1v22"/><path d="M19 5l-7 4-7-4"/></svg></div>
-          <div class="label">Expenses</div>
-          <div class="kpi" id="totalExpenses">$0</div>
-          <div class="updated" id="expensesUpdated">Updated: Today</div>
+        <div class="tile">
+          <div class="tile-title">Total Sold</div>
+          <div id="totalSold" class="tile-value">–</div>
+          <div id="totalSoldUpdated" class="tile-updated">Updated –</div>
         </div>
-        <div class="card stat">
-          <div class="badge" style="background:#dcfce7; color:#10b981"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12l5 5L21 4"/></svg></div>
-          <div class="label">Net Profit</div>
-          <div class="kpi" id="netProfit">$0</div>
-          <div class="updated" id="profitUpdated">Updated: Today</div>
+      </div>
+      <div style="display:flex; justify-content:flex-end; margin-top:6px;">
+        <button id="toggleMetrics" class="link-btn" aria-expanded="false">Show more metrics</button>
+      </div>
+
+      <!-- KPI Tiles: more (5) -->
+      <div id="moreMetrics" class="tile-grid" style="display:none; margin-top:0.5rem">
+        <div class="tile">
+          <div class="tile-title">Monthly Income</div>
+          <div id="monthlyIncome" class="tile-value">–</div>
+          <div id="monthlyIncomeUpdated" class="tile-updated">Updated –</div>
+        </div>
+        <div class="tile">
+          <div class="tile-title">Customers</div>
+          <div id="totalCustomers" class="tile-value">–</div>
+          <div id="totalCustomersUpdated" class="tile-updated">Updated –</div>
+        </div>
+        <div class="tile">
+          <div class="tile-title">New Orders</div>
+          <div id="newOrders" class="tile-value">–</div>
+          <div id="newOrdersUpdated" class="tile-updated">Updated –</div>
+        </div>
+        <div class="tile">
+          <div class="tile-title">Expenses</div>
+          <div id="totalExpenses" class="tile-value">–</div>
+          <div id="totalExpensesUpdated" class="tile-updated">Updated –</div>
+        </div>
+        <div class="tile">
+          <div class="tile-title">Net Profit</div>
+          <div id="netProfit" class="tile-value">–</div>
+          <div id="netProfitUpdated" class="tile-updated">Updated –</div>
+        </div>
+      </div>
+
+      <!-- Announcements (moved below KPI tiles) -->
+      <div class="card" style="margin-top:0.75rem">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div class="label">Announcements</div>
+          <button id="toggleAnnouncements" class="link-btn" aria-expanded="false">Show</button>
+        </div>
+        <div class="announcement" style="display:none; margin-top:10px; padding:12px; border:1px solid var(--border); border-radius:12px; background:var(--card)">
+          <div style="display:flex; justify-content:space-between; align-items:center; gap:10px;">
+            <h3 style="margin:0; font-size:1rem">Unlock the power of customization with PAL</h3>
+            <span style="font-size:12px; color:var(--muted); background:rgba(96,165,250,0.15); border:1px solid var(--border); border-radius:8px; padding:6px 8px">FREE WEBINAR</span>
+          </div>
+          <p style="color:var(--muted); margin:8px 0 10px">Join our experts for an informative session on customization features.</p>
+          <ul style="margin:0; padding-left:18px; color:var(--muted)">
+            <li>How custom modules work</li>
+            <li>Ready-to-use customization options</li>
+            <li>Leveraging advanced customization</li>
+            <li>Live Q&A with our product experts</li>
+          </ul>
+          <button id="announceRegisterBtn" class="onboard-btn primary" style="margin-top:12px">Register Now</button>
+          <button id="showAllAnnouncements" class="onboard-btn" style="margin-top:8px">Show All Announcements</button>
         </div>
       </div>
 
       <!-- Recent Activity -->
       <div class="card" style="margin-top:0.75rem">
-        <div class="label">Recent Activity</div>
-        <div class="list">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div class="label">Recent Activity</div>
+          <button id="toggleActivity" class="link-btn" aria-expanded="false">Show</button>
+        </div>
+        <div class="list" style="display:none">
           <div class="list-item"><span>Order #1842 paid</span><span class="label">2m ago</span></div>
           <div class="list-item"><span>New customer signed up</span><span class="label">10m ago</span></div>
           <div class="list-item"><span>Inventory restocked</span><span class="label">1h ago</span></div>
@@ -224,8 +452,11 @@
 
       <!-- Tasks -->
       <div class="card" style="margin-top:0.75rem">
-        <div class="label">Getting Started</div>
-        <div class="checklist" id="tasksList"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <div class="label">Getting Started</div>
+          <button id="toggleTasks" class="link-btn" aria-expanded="false">Show</button>
+        </div>
+        <div class="checklist" id="tasksList" style="display:none"></div>
         <div class="progress-card">
           <div class="label">Getting Started: <span id="overviewProgressText">0%</span></div>
           <div class="donut" id="overviewProgressDonut" style="--pct:0"></div>
@@ -234,11 +465,10 @@
 
       <!-- Quick Links -->
       <div class="card" style="margin-top:0.75rem">
-        <!-- Quick Links removed per design update -->
-<div class="links" id="quickLinks" style="display:none">
+        <div class="links" id="quickLinks" style="display:none">
           <a class="card" style="text-align:center; padding:0.5rem" href="projects.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="3" width="7" height="7" rx="2"></rect><rect x="14" y="14" width="7" height="7" rx="2"></rect><rect x="3" y="14" width="7" height="7" rx="2"></rect></svg> Projects</a>
           <a class="card" style="text-align:center; padding:0.5rem" href="notifications.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a2 2 0 0 0 2-2H10a2 2 0 0 0 2 2z"></path><path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 8h18c0-1-3-1-3-8z"></path></svg> Alerts</a>
-          <a class="card" style="text-align:center; padding:0.5rem" href="settings.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77s1.11.73 1.77.73H21a2 2 0 0 1 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
+          <a class="card" style="text-align:center; padding:0.5rem" href="settings.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09a1.65 1.65 0 0 0-1 1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c0 .66.26 1.3.73 1.77s1.11.73 1.77.73H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Settings</a>
           <a class="card" style="text-align:center; padding:0.5rem" href="credits.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"></rect><path d="M2 9h20"></path></svg> Credits</a>
           <a class="card" style="text-align:center; padding:0.5rem" href="wallet.html"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a4 4 0 0 1 4-4h10a3 3 0 0 1 3 3v2h-4a3 3 0 0 0 0 6h4v2a3 3 0 0 1-3 3H7a4 4 0 0 1-4-4V7z"></path><circle cx="16" cy="12" r="1"></circle></svg> Wallet</a>
         </div>
@@ -248,16 +478,39 @@
     <!-- Bottom Navigation -->
     <nav class="bottom-nav">
       <a href="overview.html" class="bottom-nav-item active" aria-label="Home">
+        <div class="bottom-nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Home</span>
         <div class="bottom-nav-indicator"></div>
       </a>
       <a href="projects.html" class="bottom-nav-item" aria-label="Projects">
+        <div class="bottom-nav-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM5 19V5H19V19H5Z" fill="currentColor"/>
+            <path d="M7 7H17V9H7V7ZM7 11H17V13H7V11ZM7 15H14V17H7V15Z" fill="currentColor"/>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Projects</span>
       </a>
       <a href="pal.html" class="bottom-nav-item" aria-label="PAL">
-        <span class="bottom-nav-text">PAL</span>
+        <div class="bottom-nav-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <span class="bottom-nav-text">Pal</span>
       </a>
       <a href="wallet.html" class="bottom-nav-item" aria-label="Wallet">
+        <div class="bottom-nav-icon">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <path d="M2 9h20"></path>
+          </svg>
+        </div>
         <span class="bottom-nav-text">Wallet</span>
       </a>
     </nav>
@@ -268,7 +521,6 @@
     function loadBusiness() {
       const biz = JSON.parse(localStorage.getItem('businessInfo') || '{}');
       document.getElementById('bizName').textContent = biz?.name ? biz.name : 'PAL Business Partner';
-      // Removed walletBadge notification indicator logic
     }
 
     function currencySymbol(){
@@ -291,24 +543,22 @@
     function startProfitChart(){
       const cv = document.getElementById('profitChart');
       if (!cv) return;
+      if (typeof Chart === 'undefined') { updateHeroAmount(17850, 17600); return; }
       const ctx = cv.getContext('2d');
       const grad = ctx.createLinearGradient(0,0,0,140);
       grad.addColorStop(0, 'rgba(255,255,255,0.7)');
       grad.addColorStop(1, 'rgba(255,255,255,0.08)');
-      // Static data - no more random generation
       const data = [14200, 14800, 15100, 14900, 15300, 15600, 15200, 15800, 16100, 15900, 16400, 16200, 16600, 16800, 16500, 17000, 16700, 17200, 17500, 17300, 17800, 17600, 18000, 17850];
       const chart = new Chart(cv, {
         type: 'line',
         data: { labels: data.map((_,i)=> i), datasets: [{ data, borderColor:'#fff', backgroundColor: grad, tension:0.35, fill:true, pointRadius:0 }] },
         options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{enabled:false} }, scales:{ x:{display:false}, y:{display:false} } }
       });
-      // Set static values - no more auto-updating
       updateHeroAmount(17850, 17600);
     }
 
     function loadMetrics() {
-      const sales = 12500.34; const profit = 15237.00; const expenses = 8340; const change = 15; // mock values aligned to screenshot
-      // removed static heroProfit/heroDelta set so live chart controls these
+      const sales = 12500.34; const profit = 15237.00; const expenses = 8340; const change = 15;
       document.getElementById('totalProducts').textContent = '25';
       document.getElementById('productCategory').textContent = '4';
       document.getElementById('totalSold').textContent = '11,967';
@@ -317,19 +567,18 @@
       const sym = currencySymbol();
       const today = new Date();
       const pretty = today.toLocaleDateString(undefined, { day:'2-digit', month:'short', year:'numeric' });
-      document.getElementById('productsUpdated').textContent = `Updated: ${pretty}`;
-      document.getElementById('categoryUpdated').textContent = `Updated: ${pretty}`;
-      document.getElementById('soldUpdated').textContent = `Updated: ${pretty}`;
-      document.getElementById('incomeUpdated').textContent = `Updated: ${pretty}`;
-      // New KPIs
+      document.getElementById('totalProductsUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('productCategoryUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('totalSoldUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('monthlyIncomeUpdated').textContent = `Updated: ${pretty}`;
       document.getElementById('totalCustomers').textContent = '1,243';
       document.getElementById('newOrders').textContent = '27';
       document.getElementById('totalExpenses').textContent = sym + expenses.toLocaleString(undefined,{maximumFractionDigits:0});
       document.getElementById('netProfit').textContent = sym + profit.toLocaleString(undefined,{maximumFractionDigits:0});
-      document.getElementById('customersUpdated').textContent = `Updated: ${pretty}`;
-      document.getElementById('ordersUpdated').textContent = `Updated: ${pretty}`;
-      document.getElementById('expensesUpdated').textContent = `Updated: ${pretty}`;
-      document.getElementById('profitUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('totalCustomersUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('newOrdersUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('totalExpensesUpdated').textContent = `Updated: ${pretty}`;
+      document.getElementById('netProfitUpdated').textContent = `Updated: ${pretty}`;
     }
 
     function iconSvg(name) {
@@ -399,19 +648,200 @@
       loadTasks();
       startProfitChart();
       const tasksEl = document.getElementById('tasksList');
-      tasksEl.addEventListener('click', (e) => {
-        const btn = e.target.closest('.icon-pill');
-        if (!btn) return;
-        const id = Number(btn.getAttribute('data-id'));
-        const list = readOverviewTasks();
-        const idx = list.findIndex(t => t.id === id);
-        if (idx > -1) {
-          list[idx].done = !list[idx].done;
-          writeOverviewTasks(list);
-          loadTasks();
-        }
+      if (tasksEl) {
+        tasksEl.addEventListener('click', (e) => {
+          const btn = e.target.closest('.icon-pill');
+          if (!btn) return;
+          const id = Number(btn.getAttribute('data-id'));
+          const list = readOverviewTasks();
+          const idx = list.findIndex(t => t.id === id);
+          if (idx > -1) {
+            list[idx].done = !list[idx].done;
+            writeOverviewTasks(list);
+            loadTasks();
+          }
+        });
+      }
+
+      // Menu toggle
+      const menuBtn = document.getElementById('homeMenuBtn');
+      const overlay = document.getElementById('homeMenuOverlay');
+      const drawer = document.getElementById('homeSideMenu');
+      function openMenu(){ overlay.classList.add('visible'); drawer.style.display='flex'; requestAnimationFrame(()=>drawer.classList.add('open')); }
+      function closeMenu(){ drawer.classList.remove('open'); setTimeout(()=>{ overlay.classList.remove('visible'); drawer.style.display='none'; }, 250); }
+      if (menuBtn && overlay && drawer) {
+        menuBtn.addEventListener('click', openMenu);
+        overlay.addEventListener('click', closeMenu);
+      }
+
+      // Generic submenu toggles with accessibility and responsive behavior
+      const toggleButtons = document.querySelectorAll('.menu-toggle');
+      function getSubmenu(btn){
+        const targetId = btn.getAttribute('aria-controls');
+        if (targetId) return document.getElementById(targetId);
+        const sib = btn.nextElementSibling;
+        return sib && sib.classList.contains('submenu') ? sib : null;
+      }
+      function closeOtherSubmenus(except){
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        if (!isMobile) return;
+        document.querySelectorAll('.submenu.open').forEach(el => {
+          if (el !== except){
+            el.classList.remove('open');
+            el.setAttribute('aria-hidden','true');
+            const controller = document.querySelector(`.menu-toggle[aria-controls="${el.id}"]`);
+            if (controller) controller.setAttribute('aria-expanded','false');
+          }
+        });
+      }
+      toggleButtons.forEach(btn => {
+        const sub = getSubmenu(btn);
+        if (!sub) return;
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const willOpen = !sub.classList.contains('open');
+          closeOtherSubmenus(sub);
+          sub.classList.toggle('open');
+          sub.setAttribute('aria-hidden', String(!willOpen));
+          btn.setAttribute('aria-expanded', String(willOpen));
+        });
+        btn.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' '){
+            e.preventDefault();
+            btn.click();
+          }
+        });
       });
+
+      // Quick create actions
+      const qc = document.getElementById('quickCreate');
+      if (qc) {
+        qc.addEventListener('click', (e)=>{
+          const btn = e.target.closest('.qa-item');
+          if(!btn) return;
+          const action = btn.getAttribute('data-action');
+          alert(action.replace('-', ' ').toUpperCase() + ' coming soon');
+        });
+      }
+
+      // Announcements actions
+      const regBtn = document.getElementById('announceRegisterBtn');
+      if (regBtn) { regBtn.addEventListener('click', ()=> alert('Webinar registration coming soon')); }
+      const showAllBtn = document.getElementById('showAllAnnouncements');
+      if (showAllBtn) { showAllBtn.addEventListener('click', ()=> alert('Announcements list coming soon')); }
+
+      // Collapse/expand helpers
+      function toggleEl(btnId, targetSelector, expandedText = 'Hide', collapsedText = 'Show'){
+        const btn = document.getElementById(btnId);
+        const el = typeof targetSelector === 'string' ? document.querySelector(targetSelector) : targetSelector;
+        if (!btn || !el) return;
+        btn.addEventListener('click', () => {
+          const visible = el.style.display !== 'none';
+          el.style.display = visible ? 'none' : '';
+          btn.textContent = visible ? collapsedText : expandedText;
+          btn.setAttribute('aria-expanded', String(!visible));
+        });
+      }
+      toggleEl('toggleAnnouncements', '.announcement');
+      toggleEl('toggleActivity', '.card .list');
+      toggleEl('toggleTasks', '#tasksList');
+
+      // Reintroduce metrics toggle
+      const toggleMetricsBtn = document.getElementById('toggleMetrics');
+      const moreMetrics = document.getElementById('moreMetrics');
+      if (toggleMetricsBtn && moreMetrics) {
+        toggleMetricsBtn.addEventListener('click', () => {
+          const visible = moreMetrics.style.display !== 'none';
+          moreMetrics.style.display = visible ? 'none' : '';
+          toggleMetricsBtn.textContent = visible ? 'Show more metrics' : 'Show fewer metrics';
+          toggleMetricsBtn.setAttribute('aria-expanded', String(!visible));
+        });
+      }
+
+      // Onboarding overlay logic (elements may not exist; guarded)
+      const onboardState = JSON.parse(localStorage.getItem('onboard:home')||'null');
+      const onboardTasks = [
+        { id:1, title:'Configure Module Preferences' },
+        { id:2, title:'Set Up Online Payments' },
+        { id:3, title:'Choose Invoice Templates' },
+        { id:4, title:'Add Your Business Details' }
+      ];
+      let doneSet = new Set(onboardState?.done||[]);
+      const obBackdrop = document.getElementById('onboardBackdrop');
+      const obCard = document.getElementById('onboardCard');
+      const obList = document.getElementById('onboardList');
+      const obSub = document.getElementById('onboardSub');
+      const obContinue = document.getElementById('onboardContinue');
+      const obSkip = document.getElementById('onboardSkip');
+      function renderOnboard(){
+        if (!obList || !obSub || !obContinue) return;
+        obList.innerHTML='';
+        onboardTasks.forEach(t=>{
+          const row = document.createElement('div');
+          row.className = 'onboard-row';
+          row.innerHTML = `<input type="checkbox" ${doneSet.has(t.id)?'checked':''} data-id="${t.id}"/><div>${t.title}</div>`;
+          obList.appendChild(row);
+        });
+        const done = doneSet.size; const total = onboardTasks.length;
+        obSub.textContent = `${done}/${total} Tasks Completed`;
+        obContinue.disabled = done !== total;
+      }
+      function showOnboard(){ if(obBackdrop && obCard){ obBackdrop.style.display='block'; obCard.style.display='block'; } }
+      function hideOnboard(){ if(obBackdrop && obCard){ obBackdrop.style.display='none'; obCard.style.display='none'; } }
+      if(!(onboardState && onboardState.completed===true)){
+        renderOnboard();
+      }
+      if (obList) {
+        obList.addEventListener('click',(e)=>{
+          const cb = e.target.closest('input[type="checkbox"]');
+          if(!cb) return;
+          const id = Number(cb.getAttribute('data-id'));
+          if(cb.checked) doneSet.add(id); else doneSet.delete(id);
+          renderOnboard();
+          localStorage.setItem('onboard:home', JSON.stringify({ done:[...doneSet], completed:false }));
+        });
+      }
+      if (obContinue) {
+        obContinue.addEventListener('click', ()=>{
+          localStorage.setItem('onboard:home', JSON.stringify({ done:[...doneSet], completed:true }));
+          hideOnboard();
+        });
+      }
+      if (obSkip) { obSkip.addEventListener('click', hideOnboard); }
     });
+  </script>
+  <script src="js/devbar.js"></script>
+
+  <!-- Quick Tour markup -->
+  <div id="tourBackdrop" class="tour-backdrop"></div>
+  <div id="tourCard" class="tour-card" role="dialog" aria-modal="true" aria-labelledby="tourTitle" aria-describedby="tourDesc">
+    <h2 id="tourTitle">Quick Tour</h2>
+    <p id="tourDesc">We’ll highlight KPIs, Projects, and Wallet.</p>
+    <div class="tour-actions">
+      <button id="tourBack" class="tour-btn">Back</button>
+      <button id="tourNext" class="tour-btn primary">Next</button>
+      <button id="tourSkip" class="tour-btn">Skip</button>
+    </div>
+  </div>
+
+  <script>
+  // Improve accessibility: keyboard controls and initial focus for tour
+  (function(){
+    const backdrop = document.getElementById('tourBackdrop');
+    const card = document.getElementById('tourCard');
+    const btnNext = document.getElementById('tourNext');
+    const btnBack = document.getElementById('tourBack');
+    const btnSkip = document.getElementById('tourSkip');
+    if(backdrop && card && btnNext && btnBack && btnSkip){
+      try { btnNext.focus(); } catch(e){}
+      document.addEventListener('keydown', (e)=>{
+        if(card.style.display !== 'block') return;
+        if(e.key === 'Escape'){ btnSkip.click(); }
+        else if(e.key === 'ArrowRight' || e.key === 'Enter'){ btnNext.click(); }
+        else if(e.key === 'ArrowLeft'){ btnBack.click(); }
+      });
+    }
+  })();
   </script>
 </body>
 </html>

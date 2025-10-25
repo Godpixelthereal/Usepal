@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import Layout from '../components/Layout';
+// removed: import Layout from '../components/Layout';
 import { processUserMessage } from '../ai/palLogic';
 
 export default function Pal() {
@@ -71,7 +71,7 @@ export default function Pal() {
   };
 
   return (
-    <Layout>
+    <>
       <div className="chat-container" id="chat-container">
         {messages.map(message => (
           <div 
@@ -103,6 +103,6 @@ export default function Pal() {
           Send
         </button>
       </form>
-    </Layout>
-  );
+    </>
+);
 }

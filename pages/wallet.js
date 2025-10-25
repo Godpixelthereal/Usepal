@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Layout from '../components/Layout';
 import { Line, Bar, Doughnut } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -140,7 +139,7 @@ export default function WalletPage(){
   const breakdownOpts = { plugins:{ legend:{ labels:{ color: tick } }, title:{ display:true, text:'Income vs Spending Share', color: tick, font:{ weight: 'bold' } } } };
 
   return (
-    <Layout>
+    <>
       <div className="app" style={{ maxWidth: 900, margin: '0 auto', padding: '1rem' }}>
         <div className="header" style={{ position: 'sticky', top: 0, background: 'var(--bg)', borderBottom: '1px solid var(--border)', zIndex: 20 }}>
           <div className="header-inner" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem 0' }}>
@@ -201,6 +200,6 @@ export default function WalletPage(){
           <Doughnut data={breakdownData} options={breakdownOpts} height={160} />
         </div>
       </div>
-    </Layout>
+    </>
   );
 }
